@@ -1,0 +1,34 @@
+from typing import Optional
+
+import hodgepodge
+import hodgepodge.patterns
+import sys
+
+WINDOWS = 'windows'
+LINUX = 'linux'
+DARWIN = 'darwin'
+
+OS_TYPES = sorted([WINDOWS, LINUX, DARWIN])
+
+
+def is_windows():
+    return sys.platform == WINDOWS
+
+
+def is_linux():
+    return sys.platform == LINUX
+
+
+def is_darwin():
+    return sys.platform == DARWIN
+
+
+def normalize_os_type(os_type: str) -> Optional[str]:
+    os_type = str.lower(os_type)
+    if hodgepodge.patterns.string_matches_any_glob(os_type, patterns=['microsoft', 'win*']):
+        return WINDOWS
+    elif hodgepodge.patterns.string_matches_any_glob(os_type, patterns=['linux']):
+        return LINUX
+    elif hodgepodge.patterns.string_matches_any_glob(os_type, patterns=['darwin', 'mac*']):
+        return DARWIN
+    return os_type

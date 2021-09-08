@@ -1,0 +1,9 @@
+hodgepodge~=0.0.0
+arrow~=1.0.3
+stix2~=3.0.0
+setuptools~=45.2.0
+Click~=7.0
+python-dateutil~=2.7.3
+DAWG~=0.8.0
+dacite~=1.6.0
+requests~=2.22.0
