@@ -22,7 +22,9 @@ import os
 @click.pass_context
 def file_search(ctx, roots: str, excluded_directories: str, filename_glob_patterns: str, min_file_size: int, max_file_size: int,
                 max_depth: int, max_results: int, follow_symlinks: bool, follow_mounts: bool):
-
+    """
+    Search for one or more files.
+    """
     ctx.obj['search'] = FileSearch(
         roots=hodgepodge.click.str_to_list(roots),
         excluded_directories=hodgepodge.click.str_to_list(excluded_directories),
@@ -61,7 +63,7 @@ def get_files(ctx, include_hashes: bool):
 
     for file in search.iter_files(include_hashes=include_hashes):
         file = hodgepodge.types.dataclass_to_dict(file)
-        hodgepodge.click.echo(file)
+        click.echo(file)
 
 
 @file_search.command()
@@ -81,7 +83,7 @@ def get_paths(ctx):
 @click.pass_context
 def get_total_size(ctx):
     """
-    Combined size of the files.
+    Combined size of selected files.
     """
     search = ctx.obj['search']
     assert isinstance(search, FileSearch)

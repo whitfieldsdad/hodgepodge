@@ -1,30 +1,17 @@
-from typing import List, Iterator, Optional, Tuple, Dict
-from dataclasses import dataclass, field
-from hodgepodge.hashing import Hashes
-from hodgepodge.constants import FILE_SEARCH_FOLLOW_MOUNTS_BY_DEFAULT, FILE_SEARCH_FOLLOW_SYMLINKS_BY_DEFAULT, \
-    DEFAULT_BLOCK_SIZE_FOR_FILE_IO, INCLUDE_HASHES_BY_DEFAULT
+from typing import List, Iterator, Optional, Tuple
+from dataclasses import dataclass
+from hodgepodge.constants import FOLLOW_MOUNTS_BY_DEFAULT, FOLLOW_SYMLINKS_BY_DEFAULT, INCLUDE_HASHES_BY_DEFAULT
+from hodgepodge.files import File
 
 import datetime
 import dawg
 import glob
 import hodgepodge.patterns
 import hodgepodge.platforms
-import hodgepodge.files
+import hodgepodge.hashing
 import os.path
 import os
 import stat
-
-
-@dataclass()
-class File:
-    hashes: Dict[str, str] = field(repr=False)
-    last_access_time: datetime.datetime = field(repr=False)
-    last_change_time: datetime.datetime = field(repr=False)
-    last_modify_time: datetime.datetime = field(repr=False)
-    name: str = field(repr=False)
-    path: str
-    size: int
-    seen_time: datetime.datetime
 
 
 @dataclass(frozen=True)
@@ -32,8 +19,8 @@ class FileSearch:
     roots: List[str]
     excluded_directories: List[str] = None
     filename_glob_patterns: List[str] = None
-    follow_mounts: bool = FILE_SEARCH_FOLLOW_MOUNTS_BY_DEFAULT
-    follow_symlinks: bool = FILE_SEARCH_FOLLOW_SYMLINKS_BY_DEFAULT
+    follow_mounts: bool = FOLLOW_MOUNTS_BY_DEFAULT
+    follow_symlinks: bool = FOLLOW_SYMLINKS_BY_DEFAULT
     max_depth: Optional[int] = None
     max_results: Optional[int] = None
     max_file_size: Optional[int] = None
@@ -66,8 +53,8 @@ class FileSearch:
 
 
 def search(roots: List[str], excluded_directories: List[str] = None,
-           follow_symlinks: bool = FILE_SEARCH_FOLLOW_SYMLINKS_BY_DEFAULT,
-           follow_mounts: bool = FILE_SEARCH_FOLLOW_MOUNTS_BY_DEFAULT,
+           follow_symlinks: bool = FOLLOW_SYMLINKS_BY_DEFAULT,
+           follow_mounts: bool = FOLLOW_MOUNTS_BY_DEFAULT,
            filename_glob_patterns: List[str] = None,
            min_file_size: Optional[int] = None, max_file_size: Optional[int] = None,
            max_depth: Optional[int] = None, max_results: Optional[int] = None,
@@ -108,10 +95,9 @@ def search(roots: List[str], excluded_directories: List[str] = None,
 
 
 def walk(roots: List[str], excluded_directories: List[str] = None,
-         follow_symlinks: bool = FILE_SEARCH_FOLLOW_SYMLINKS_BY_DEFAULT,
-         follow_mounts: bool = FILE_SEARCH_FOLLOW_MOUNTS_BY_DEFAULT, max_depth: Optional[int] = None,
-         max_results: Optional[int] = None, include_hashes: bool = INCLUDE_HASHES_BY_DEFAULT,
-         block_size_for_file_hashing: int = DEFAULT_BLOCK_SIZE_FOR_FILE_IO) -> Iterator[File]:
+         follow_symlinks: bool = FOLLOW_SYMLINKS_BY_DEFAULT,
+         follow_mounts: bool = FOLLOW_MOUNTS_BY_DEFAULT, max_depth: Optional[int] = None,
+         max_results: Optional[int] = None, include_hashes: bool = INCLUDE_HASHES_BY_DEFAULT) -> Iterator[File]:
 
     roots, excluded_directories = map(as_non_overlapping_paths, (roots, excluded_directories))
     for root in roots:
@@ -126,12 +112,13 @@ def walk(roots: List[str], excluded_directories: List[str] = None,
             #: Optionally hash the contents of the file using a variety of hash algorithms.
             hashes = None
             if include_hashes and stat.S_ISREG(stat_result.st_mode):
-                hashes = hodgepodge.hashing.get_file_hashes(path, block_size=block_size_for_file_hashing).get_hex_digests()
+                hashes = hodgepodge.hashing.get_file_hashes(path)
 
             file = File(
                 seen_time=datetime.datetime.now(),
                 name=os.path.basename(path),
                 path=path,
+                real_path=hodgepodge.files.get_real_path(path),
                 size=stat_result.st_size,
                 last_modify_time=datetime.datetime.fromtimestamp(stat_result.st_mtime_ns / 1e9),
                 last_access_time=datetime.datetime.fromtimestamp(stat_result.st_atime_ns / 1e9),

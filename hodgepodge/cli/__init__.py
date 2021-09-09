@@ -1,4 +1,5 @@
 from hodgepodge.cli.command_groups.file_search import file_search
+from hodgepodge.cli.command_groups.file import file
 
 import click
 
@@ -10,6 +11,7 @@ def cli(ctx):
 
 
 COMMAND_GROUPS = [
+    file,
     file_search,
 ]
 for command_group in COMMAND_GROUPS:

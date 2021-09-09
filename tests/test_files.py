@@ -1,5 +1,5 @@
 from unittest import TestCase
-from hodgepodge.files import Timestamps
+from hodgepodge.files import FileTimestamps, File
 
 import hodgepodge.files
 import tempfile
@@ -16,7 +16,12 @@ class FileTestCases(TestCase):
     def test_get_file_timestamps(self):
         with tempfile.NamedTemporaryFile(dir=self.tmp_dir) as tmp:
             timestamps = hodgepodge.files.get_file_timestamps(path=tmp.name)
-            self.assertIsInstance(timestamps, Timestamps)
+            self.assertIsInstance(timestamps, FileTimestamps)
+
+    def test_get_file_metadata(self):
+        with tempfile.NamedTemporaryFile(dir=self.tmp_dir) as tmp:
+            metadata = hodgepodge.files.get_file_metadata(path=tmp.name)
+            self.assertIsInstance(metadata, File)
 
     def test_get_file_size(self):
         with tempfile.NamedTemporaryFile(dir=self.tmp_dir) as tmp:
@@ -60,8 +65,6 @@ class FileTestCases(TestCase):
         for i, (path, expected) in enumerate([
             ('.', os.getcwd()),
             (os.getcwd(), os.getcwd()),
-            #(hodgepodge.files.get_real_path('~'), hodgepodge.files.get_real_path('$HOME')),
-            #(hodgepodge.files.get_real_path('$HOME'), hodgepodge.files.get_real_path('~')),
         ]):
             with self.subTest(i=i, path=path):
                 result = hodgepodge.files.get_real_path(path)

@@ -1,6 +1,5 @@
-from typing import Optional
+from typing import Optional, Dict
 from hodgepodge.constants import INCLUDE_HASHES_BY_DEFAULT
-from hodgepodge.hashing import _Hashes
 
 import requests
 import shutil
@@ -9,7 +8,7 @@ import hodgepodge.hashing
 
 
 def download_file(url: str, path: str, session: Optional[requests.Session] = None,
-                  include_hashes: bool = INCLUDE_HASHES_BY_DEFAULT) -> Optional[_Hashes]:
+                  include_hashes: bool = INCLUDE_HASHES_BY_DEFAULT) -> Optional[Dict[str, str]]:
 
     hodgepodge.files.mkdir(path)
     with open(path, 'wb') as fp:

@@ -72,12 +72,6 @@ class TypeTestCases(unittest.TestCase):
         expected = b'hello'
         self.assertEqual(expected, result)
 
-    def test_bytes_to_hex(self):
-        h = hodgepodge.hashing.get_md5(b"hello").digest
-        result = hodgepodge.types.bytes_to_hex(h)
-        expected = "5d41402abc4b2a76b9719d911017c592"
-        self.assertEqual(expected, result)
-
     def test_bytes_to_str(self):
         result = hodgepodge.types.bytes_to_str(b"hello")
         expected = "hello"

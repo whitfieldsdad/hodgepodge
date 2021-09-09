@@ -1,10 +1,8 @@
 from unittest import TestCase
-
-import stix2
-
 from hodgepodge.stix2 import MITRE_ATTACK_ICS_URL
 
 import hodgepodge.stix2
+import stix2
 
 
 class Stix2TestCases(TestCase):
