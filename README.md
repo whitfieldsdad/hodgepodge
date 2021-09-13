@@ -6,11 +6,14 @@
 
 ## Features
 
-- Search for files;
-- Pack files into archives;
-- Perform pattern matching;
+- Search for files and directories;
+- Hash files;
+- Pack files into ZIP archives;
+- Perform pattern matching using regular expressions or UNIX-style glob patterns;
 - Compress and decompress objects;
-- Make the outputs from your tools more human-readable (e.g., by pretty-printing dates, file sizes, timestamps, and durations); and
+- Parse dates and times;
+- Read STIX 2.0 objects from local files, directories, or TAXII servers 🚖🚦;
+- Make the outputs from your tools more human-readable (e.g., by pretty-printing dates, file sizes, timestamps, and durations, joining lists with an Oxford comma); and
 - ✨ _Way_, __*way*__, __way__ more ✨.
 
 Supported hash algorithms:

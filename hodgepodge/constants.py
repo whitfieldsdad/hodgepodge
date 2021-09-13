@@ -9,3 +9,6 @@ FOLLOW_SYMLINKS_BY_DEFAULT = False
 
 #: Hashes - mostly.
 INCLUDE_HASHES_BY_DEFAULT = True
+
+#: String comparison.
+STRING_COMPARISON_IS_CASE_SENSITIVE_BY_DEFAULT = False

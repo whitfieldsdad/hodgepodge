@@ -11,18 +11,20 @@ class Stix2TestCases(TestCase):
         self.assertIsInstance(data_source, stix2.TAXIICollectionSource)
 
     def test_get_object_by_id(self):
+        object_id = 'intrusion-set--76d59913-1d24-4992-a8ac-05a3eb093f71'
         data_source = hodgepodge.stix2.get_taxii_data_source(url=MITRE_ATTACK_ICS_URL)
         row = hodgepodge.stix2.get_object(
             data_source=data_source,
-            object_id='intrusion-set--76d59913-1d24-4992-a8ac-05a3eb093f71',
+            object_id=object_id,
         )
         self.assertIsInstance(row, dict)
+        self.assertEqual(object_id, row['id'])
 
     def test_get_objects_by_name(self):
         data_source = hodgepodge.stix2.get_taxii_data_source(url=MITRE_ATTACK_ICS_URL)
         rows = hodgepodge.stix2.get_objects(
             data_source=data_source,
-            object_names=['Dragonfly 2.0']
+            object_names=['Dragonfly 2.0'],
         )
         self.assertIsInstance(rows, list)
         self.assertEqual(1, len(rows))
@@ -35,12 +37,12 @@ class Stix2TestCases(TestCase):
         data_source = hodgepodge.stix2.get_taxii_data_source(url=MITRE_ATTACK_ICS_URL)
         rows = hodgepodge.stix2.get_objects(
             data_source=data_source,
-            object_names=['Berserk Bear'],
+            object_names=['OilRig'],
         )
         self.assertIsInstance(rows, list)
         self.assertEqual(1, len(rows))
 
-        expected = 'intrusion-set--76d59913-1d24-4992-a8ac-05a3eb093f71'
+        expected = 'intrusion-set--4ca1929c-7d64-4aab-b849-badbfc0c760d'
         result = rows[0]['id']
         self.assertEqual(expected, result)
 

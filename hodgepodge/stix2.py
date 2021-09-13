@@ -117,7 +117,10 @@ def iter_objects(data_source: DataSource, object_ids: List[str] = None, object_e
 
         #: Filter objects by name or alias - doing this here allows us to support regular expressions and globs.
         if object_names:
-            names = [name for name in [row.get('name')] + row.get('aliases', []) if name]
+            if 'name' not in row:
+                continue
+
+            names = [row['name']] + row.get('aliases', [])
             if not hodgepodge.patterns.any_string_matches_any_glob(values=names, patterns=object_names):
                 continue
 
