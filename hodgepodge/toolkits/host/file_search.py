@@ -186,6 +186,12 @@ def path_in_any_directory(path: str, directories: List[str]) -> bool:
     return False
 
 
+def resolve_paths(paths: List[str], allow_overlap: bool = True) -> List[str]:
+    if allow_overlap:
+        return as_paths(paths)
+    return as_non_overlapping_paths(paths)
+
+
 def as_paths(paths: List[str]) -> List[str]:
     results = set()
     for path in paths or []:
