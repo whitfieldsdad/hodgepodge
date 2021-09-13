@@ -1,6 +1,6 @@
 from typing import Dict
 from dataclasses import dataclass
-from hodgepodge.constants import FOLLOW_SYMLINKS_BY_DEFAULT, INCLUDE_HASHES_BY_DEFAULT
+from hodgepodge.constants import FOLLOW_SYMLINKS_BY_DEFAULT, INCLUDE_HASHES_BY_DEFAULT, VERBOSE_BY_DEFAULT
 from pathlib import Path
 
 import collections
@@ -8,7 +8,10 @@ import hodgepodge.hashing
 import os.path
 import shutil
 import datetime
+import logging
 import os
+
+logger = logging.getLogger(__name__)
 
 FileTimestamps = collections.namedtuple('Timestamps', ['modify_time', 'access_time', 'change_time'])
 
@@ -26,7 +29,7 @@ class File:
     size: int
 
 
-def get_file_metadata(path: str, follow_symlinks: bool = FOLLOW_SYMLINKS_BY_DEFAULT, include_hashes: bool = INCLUDE_HASHES_BY_DEFAULT) -> File:
+def get_file_metadata(path: str, follow_symlinks: bool = FOLLOW_SYMLINKS_BY_DEFAULT, include_hashes: bool = INCLUDE_HASHES_BY_DEFAULT, verbose: bool = VERBOSE_BY_DEFAULT) -> File:
     stat_result = os.stat(path, follow_symlinks=follow_symlinks)
     size = stat_result.st_size
 
@@ -40,7 +43,7 @@ def get_file_metadata(path: str, follow_symlinks: bool = FOLLOW_SYMLINKS_BY_DEFA
 
     hashes = None
     if include_hashes:
-        hashes = hodgepodge.hashing.get_file_hashes(path)
+        hashes = hodgepodge.hashing.get_file_hashes(path, verbose=verbose)
 
     return File(
         seen_time=datetime.datetime.now(),
@@ -68,10 +71,6 @@ def get_file_size(path: str) -> int:
     return get_file_stat(path).st_size
 
 
-def get_file_hashes(path: str) -> Dict[str, str]:
-    return hodgepodge.hashing.get_file_hashes(path)
-
-
 def get_file_stat(path: str) -> os.stat_result:
     try:
         return os.stat(path)
@@ -83,6 +82,7 @@ def get_file_stat(path: str) -> os.stat_result:
 
 
 def exists(path: str) -> bool:
+    path = get_real_path(path)
     return os.path.exists(path)
 
 
@@ -95,15 +95,20 @@ def delete(*paths: str) -> None:
 
 
 def touch(path: str):
+    path = get_real_path(path)
     open(path, 'wb').close()
 
 
-def mkdir(path: str) -> None:
+def mkdir(path: str, verbose: bool = VERBOSE_BY_DEFAULT) -> None:
+    path = get_real_path(path)
     if path != '/':
+        if verbose:
+            logger.info("Creating directory: %s", path)
         Path(path).mkdir(parents=True, exist_ok=True)
 
 
 def dirname(path: str) -> str:
+    path = get_real_path(path)
     return os.path.dirname(path)
 
 
