@@ -1,4 +1,7 @@
-all: test code-coverage
+all: clean test code-coverage build
+
+clean:
+	rm -rf dist
 
 update-dependencies:
 	poetry update
@@ -14,7 +17,7 @@ code-coverage:
 install:
 	poetry install
 
-build:
+build: test
 	poetry build
 
 release: build
