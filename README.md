@@ -2,7 +2,7 @@
 
 > _A **hodgepodge** of hopefully helpful helper code_
 
-![These are a few of my favourite functions](resources/images/a-few-of-my-favourite-things.jpg)
+![These are a few of my favourite functions](https://raw.githubusercontent.com/whitfieldsdad/images/main/a-few-of-my-favourite-things.jpg)
 
 ## Features
 
