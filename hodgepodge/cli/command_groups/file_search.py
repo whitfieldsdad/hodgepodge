@@ -1,5 +1,5 @@
 from hodgepodge import click
-from hodgepodge.toolkits.host.file_search import FileSearch
+from hodgepodge.toolkits.host.file.search import FileSearch
 from hodgepodge.hashing import HASH_ALGORITHMS
 
 import hodgepodge.click

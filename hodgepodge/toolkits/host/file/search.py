@@ -197,7 +197,7 @@ def as_paths(paths: List[str]) -> List[str]:
     for path in paths or []:
         path = hodgepodge.files.get_real_path(path)
         if glob.has_magic(path):
-            results.update(set(glob.glob(path)))
+            results.update(glob.glob(path))
         else:
             results.add(path)
     return sorted(results)

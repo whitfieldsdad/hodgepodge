@@ -1,6 +1,7 @@
 from unittest import TestCase
-from hodgepodge.toolkits.host.file_search import FileSearch
+from hodgepodge.toolkits.host.file.search import FileSearch
 
+import hodgepodge.toolkits.host.file.search as search
 import hodgepodge.files
 import tempfile
 import uuid
@@ -14,6 +15,35 @@ class FileSearchTestCase(TestCase):
     @classmethod
     def tearDownClass(cls):
         hodgepodge.files.delete(cls.tmp_dir)
+
+    def test_as_paths(self):
+        home = '$HOME'
+        real_home = hodgepodge.files.get_real_path(home)
+
+        for paths, expected in (
+            ([home], [real_home]),
+            ([real_home], [real_home]),
+            ([home, real_home], [real_home])
+        ):
+            result = search.as_paths(paths)
+            self.assertSetEqual(set(expected), set(result))
+
+    def test_as_non_overlapping_paths(self):
+        root = '/'
+        real_root = hodgepodge.files.get_real_path(root)
+
+        home = '$HOME'
+        real_home = hodgepodge.files.get_real_path(home)
+
+        for paths, expected in (
+            ([home], [real_home]),
+            ([real_home], [real_home]),
+            ([home, real_home], [real_home]),
+            ([home, root], [real_root]),
+            ([home, root, real_root], [real_root])
+        ):
+            result = search.as_non_overlapping_paths(paths)
+            self.assertSetEqual(set(expected), set(result))
 
     def test_find_with_max_results(self):
         tmp_dir = tempfile.mkdtemp(dir=self.tmp_dir)
