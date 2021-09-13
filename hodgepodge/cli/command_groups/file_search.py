@@ -1,3 +1,5 @@
+import os
+
 from hodgepodge import click
 from hodgepodge.toolkits.host.file.search import FileSearch
 from hodgepodge.hashing import HASH_ALGORITHMS
@@ -6,11 +8,11 @@ import hodgepodge.click
 import hodgepodge.types
 import hodgepodge.ux
 import click
-import os
+import sys
 
 
-@click.group()
-@click.option('--roots', default=[os.getcwd()])
+@click.group(invoke_without_command=True)
+@click.argument('roots', default=os.getcwd())
 @click.option('--excluded-directories')
 @click.option('--filename-glob-patterns')
 @click.option('--min-file-size', type=int, default=None)
@@ -25,7 +27,7 @@ def file_search(ctx, roots: str, excluded_directories: str, filename_glob_patter
     """
     Search for one or more files.
     """
-    ctx.obj['search'] = FileSearch(
+    ctx.obj['search'] = search = FileSearch(
         roots=hodgepodge.click.str_to_list(roots),
         excluded_directories=hodgepodge.click.str_to_list(excluded_directories),
         filename_glob_patterns=hodgepodge.click.str_to_list(filename_glob_patterns),
@@ -36,11 +38,14 @@ def file_search(ctx, roots: str, excluded_directories: str, filename_glob_patter
         follow_symlinks=follow_symlinks,
         follow_mounts=follow_mounts,
     )
+    if not ctx.invoked_subcommand:
+        for file in search:
+            click.echo(file.path)
 
 
 @file_search.command()
 @click.pass_context
-def count_files(ctx):
+def count(ctx):
     """
     Count matching files.
     """
@@ -54,7 +59,7 @@ def count_files(ctx):
 @file_search.command()
 @click.option('--include-hashes/--no-hashes', help='({})'.format(','.join(HASH_ALGORITHMS)), default=False)
 @click.pass_context
-def get_files(ctx, include_hashes: bool):
+def get_metadata(ctx, include_hashes: bool):
     """
     Search for files.
     """
@@ -62,7 +67,7 @@ def get_files(ctx, include_hashes: bool):
     assert isinstance(search, FileSearch)
 
     for file in search.iter_files(include_hashes=include_hashes):
-        file = hodgepodge.types.dataclass_to_dict(file)
+        file = hodgepodge.types.dataclass_to_json(file)
         click.echo(file)
 
 

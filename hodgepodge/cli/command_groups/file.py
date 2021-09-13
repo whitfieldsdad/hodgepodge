@@ -9,7 +9,7 @@ logger = logging.getLogger(__name__)
 
 
 @click.group()
-@click.argument('path', required=True)
+@click.argument('path', type=click.Path(exists=True))
 @click.pass_context
 def file(ctx: click.Context, path: str):
     """
@@ -25,8 +25,8 @@ def get_metadata(ctx: click.Context):
     path = ctx.obj['path']
     try:
         info = hodgepodge.files.get_file_metadata(path)
-    except FileNotFoundError:
-        logger.error("File not found: {}".format(path))
+    except FileNotFoundError as e:
+        logger.error(e)
     else:
         data = hodgepodge.types.dataclass_to_json(info)
         click.echo(data)
@@ -39,8 +39,8 @@ def get_size(ctx: click.Context, easy_to_read: bool):
     path = ctx.obj['path']
     try:
         size = hodgepodge.files.get_file_size(path)
-    except FileNotFoundError:
-        logger.error("File not found: {}".format(path))
+    except FileNotFoundError as e:
+        logger.error(e)
     else:
         if easy_to_read:
             size = hodgepodge.ux.pretty_file_size(size)
