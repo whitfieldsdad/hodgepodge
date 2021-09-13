@@ -42,23 +42,28 @@ $ python3 setup.py install
 You can run the unit tests and measure code coverage at the same time as follows:
 
 ```shell
-$ python3 -m tox
-...
-Name                                           Stmts   Miss  Cover
-------------------------------------------------------------------
-hodgepodge/__init__.py                             0      0   100%
-hodgepodge/classes.py                             12      0   100%
-hodgepodge/cli/__init__.py                         9      1    89%
-...
-hodgepodge/types.py                               86     46    47%
-hodgepodge/uuid.py                                 3      0   100%
-hodgepodge/ux.py                                  56      6    89%
-------------------------------------------------------------------
-TOTAL                                            730    199    73%
-py3 run-test: commands[4] | /home/fishet/src/hodgepodge/.tox/py3/bin/python -m coverage html '--omit=.tox/*,tests/*'
-_______________________________________ summary _______________________________________
-  py3: commands succeeded
-  congratulations :)
+$ make test
+make test
+poetry run coverage run -m pytest
+================================= test session starts =================================
+platform linux -- Python 3.8.10, pytest-5.4.3, py-1.10.0, pluggy-0.13.1
+rootdir: /home/fishet/src/hodgepodge
+collected 59 items
+
+tests/test_classes.py ...                                                       [  5%]
+tests/test_compression.py ..                                                    [  8%]
+tests/test_files.py ............                                                [ 28%]
+tests/test_hashing.py ..                                                        [ 32%]
+tests/test_patterns.py .....                                                    [ 40%]
+tests/test_platforms.py .                                                       [ 42%]
+tests/test_stix2.py ......                                                      [ 52%]
+tests/test_time.py ...                                                          [ 57%]
+tests/test_type.py ......                                                       [ 67%]
+tests/test_uuid.py .                                                            [ 69%]
+tests/test_ux.py ........                                                       [ 83%]
+tests/toolkits/host/file/test_search.py ..........                              [100%]
+
+================================= 59 passed in 5.12s ==================================
 ````
 
 A code coverage report will automatically be written to: `htmlcov/index.html` whenever you run `tox`.

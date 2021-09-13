@@ -1,4 +1,4 @@
-all: clean test code-coverage build
+all: clean test build
 
 clean:
 	rm -rf dist
@@ -10,9 +10,6 @@ update-dependencies:
 
  test:
 	poetry run coverage run -m pytest
-
-code-coverage:
-	poetry run coverage report
 
 install:
 	poetry install
