@@ -30,11 +30,32 @@ Supported compression algorithms:
 
 ## Installation
 
-To install from source:
+To install using `pip`:
+
+```shell
+$ pip install hodgepodge
+```
+
+To install from source using `poetry`
+
+```shell
+$ git clone git@github.com:whitfieldsdad/hodgepodge.git
+$ make install
+```
+
+To install from source using `setup.py`:
 
 ```shell
 $ git clone git@github.com:whitfieldsdad/hodgepodge.git
 $ python3 setup.py install
+```
+
+## Install or update build dependencies
+
+The following Makefile goal can be used to install or update build dependencies as needed:
+
+```shell
+$ make update
 ```
 
 ## Tests
