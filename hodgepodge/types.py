@@ -1,12 +1,11 @@
-from typing import Any, Union, Dict
+from typing import Any, Union, Dict, Iterable, Iterator, Tuple
 
+import hodgepodge.json
 import collections
 import dacite
 import dataclasses
 import distutils.util
 import json
-
-import hodgepodge.json
 
 
 def is_iterable(data: Any) -> bool:

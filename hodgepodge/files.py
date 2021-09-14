@@ -29,7 +29,9 @@ class File:
     size: int
 
 
-def get_file_metadata(path: str, follow_symlinks: bool = FOLLOW_SYMLINKS_BY_DEFAULT, include_hashes: bool = INCLUDE_HASHES_BY_DEFAULT, verbose: bool = VERBOSE_BY_DEFAULT) -> File:
+def get_file_metadata(path: str, follow_symlinks: bool = FOLLOW_SYMLINKS_BY_DEFAULT,
+                      include_hashes: bool = INCLUDE_HASHES_BY_DEFAULT) -> File:
+
     stat_result = os.stat(path, follow_symlinks=follow_symlinks)
     size = stat_result.st_size
 
@@ -43,7 +45,7 @@ def get_file_metadata(path: str, follow_symlinks: bool = FOLLOW_SYMLINKS_BY_DEFA
 
     hashes = None
     if include_hashes:
-        hashes = hodgepodge.hashing.get_file_hashes(path, verbose=verbose)
+        hashes = hodgepodge.hashing.get_file_hashes(path)
 
     return File(
         seen_time=datetime.datetime.now(),
@@ -86,7 +88,7 @@ def exists(path: str) -> bool:
     return os.path.exists(path)
 
 
-def delete(*paths: str) -> None:
+def delete(*paths: str):
     for path in paths:
         if os.path.isdir(path):
             shutil.rmtree(path)
@@ -99,11 +101,9 @@ def touch(path: str):
     open(path, 'wb').close()
 
 
-def mkdir(path: str, verbose: bool = VERBOSE_BY_DEFAULT) -> None:
+def mkdir(path: str) -> None:
     path = get_real_path(path)
     if path != '/':
-        if verbose:
-            logger.info("Creating directory: %s", path)
         Path(path).mkdir(parents=True, exist_ok=True)
 
 

@@ -1,4 +1,4 @@
-from typing import List, Iterator, Optional, Tuple
+from typing import List, Iterator, Iterable, Optional, Tuple, Set
 from dataclasses import dataclass
 from hodgepodge.constants import FOLLOW_MOUNTS_BY_DEFAULT, FOLLOW_SYMLINKS_BY_DEFAULT, INCLUDE_HASHES_BY_DEFAULT
 from hodgepodge.files import File
@@ -16,9 +16,9 @@ import stat
 
 @dataclass(frozen=True)
 class FileSearch:
-    roots: List[str]
-    excluded_directories: List[str] = None
-    filename_glob_patterns: List[str] = None
+    roots: Iterable[str]
+    excluded_directories: Iterable[str] = None
+    filename_glob_patterns: Iterable[str] = None
     follow_mounts: bool = FOLLOW_MOUNTS_BY_DEFAULT
     follow_symlinks: bool = FOLLOW_SYMLINKS_BY_DEFAULT
     max_depth: Optional[int] = None
@@ -29,7 +29,7 @@ class FileSearch:
     def count_files(self) -> int:
         return sum(1 for _ in self.iter_files(include_hashes=False))
 
-    def list_files(self, include_hashes: bool = INCLUDE_HASHES_BY_DEFAULT) -> List[File]:
+    def get_files(self, include_hashes: bool = INCLUDE_HASHES_BY_DEFAULT) -> List[File]:
         return list(self.iter_files(include_hashes=include_hashes))
 
     def iter_files(self, include_hashes: bool = INCLUDE_HASHES_BY_DEFAULT) -> Iterator[File]:
@@ -52,13 +52,11 @@ class FileSearch:
         return self.iter_files()
 
 
-def search(roots: List[str], excluded_directories: List[str] = None,
+def search(roots: Iterable[str], excluded_directories: Iterable[str] = None,
            follow_symlinks: bool = FOLLOW_SYMLINKS_BY_DEFAULT,
-           follow_mounts: bool = FOLLOW_MOUNTS_BY_DEFAULT,
-           filename_glob_patterns: List[str] = None,
-           min_file_size: Optional[int] = None, max_file_size: Optional[int] = None,
-           max_depth: Optional[int] = None, max_results: Optional[int] = None,
-           include_hashes: bool = INCLUDE_HASHES_BY_DEFAULT) -> Iterator[File]:
+           follow_mounts: bool = FOLLOW_MOUNTS_BY_DEFAULT, filename_glob_patterns: Iterable[str] = None,
+           min_file_size: Optional[int] = None, max_file_size: Optional[int] = None, max_depth: Optional[int] = None,
+           max_results: Optional[int] = None, include_hashes: bool = INCLUDE_HASHES_BY_DEFAULT) -> Iterator[File]:
 
     case_sensitive = False if hodgepodge.platforms.is_windows() else True
     files = walk(
@@ -94,10 +92,10 @@ def search(roots: List[str], excluded_directories: List[str] = None,
             return
 
 
-def walk(roots: List[str], excluded_directories: List[str] = None,
-         follow_symlinks: bool = FOLLOW_SYMLINKS_BY_DEFAULT,
-         follow_mounts: bool = FOLLOW_MOUNTS_BY_DEFAULT, max_depth: Optional[int] = None,
-         max_results: Optional[int] = None, include_hashes: bool = INCLUDE_HASHES_BY_DEFAULT) -> Iterator[File]:
+def walk(roots: Iterable[str], excluded_directories: Iterable[str] = None,
+         follow_symlinks: bool = FOLLOW_SYMLINKS_BY_DEFAULT, follow_mounts: bool = FOLLOW_MOUNTS_BY_DEFAULT,
+         max_depth: Optional[int] = None, max_results: Optional[int] = None,
+         include_hashes: bool = INCLUDE_HASHES_BY_DEFAULT) -> Iterator[File]:
 
     roots, excluded_directories = map(as_non_overlapping_paths, (roots, excluded_directories))
     for root in roots:
@@ -109,7 +107,6 @@ def walk(roots: List[str], excluded_directories: List[str] = None,
             max_depth=max_depth,
             max_results=max_results,
         ):
-            #: Optionally hash the contents of the file using a variety of hash algorithms.
             hashes = None
             if include_hashes and stat.S_ISREG(stat_result.st_mode):
                 hashes = hodgepodge.hashing.get_file_hashes(path)
@@ -128,7 +125,7 @@ def walk(roots: List[str], excluded_directories: List[str] = None,
             yield file
 
 
-def _walk(root: str, excluded_directories: List[str], follow_symlinks: bool, follow_mounts: bool,
+def _walk(root: str, excluded_directories: Iterable[str], follow_symlinks: bool, follow_mounts: bool,
           max_depth: Optional[int], max_results: Optional[int], depth: int = 0,
           last_stat_result: Optional[os.stat_result] = None) -> Iterator[Tuple[str, os.stat_result]]:
     try:
@@ -179,20 +176,20 @@ def path_in_directory(path: str, directory: str) -> bool:
     return path.startswith(directory)
 
 
-def path_in_any_directory(path: str, directories: List[str]) -> bool:
+def path_in_any_directory(path: str, directories: Iterable[str]) -> bool:
     for directory in directories:
         if path_in_directory(path, directory):
             return True
     return False
 
 
-def resolve_paths(paths: List[str], allow_overlap: bool = True) -> List[str]:
+def resolve_paths(paths: Iterable[str], allow_overlap: bool = True) -> Set[str]:
     if allow_overlap:
         return as_paths(paths)
     return as_non_overlapping_paths(paths)
 
 
-def as_paths(paths: List[str]) -> List[str]:
+def as_paths(paths: Iterable[str]) -> Set[str]:
     results = set()
     for path in paths or []:
         path = hodgepodge.files.get_real_path(path)
@@ -200,10 +197,10 @@ def as_paths(paths: List[str]) -> List[str]:
             results.update(glob.glob(path))
         else:
             results.add(path)
-    return sorted(results)
+    return results
 
 
-def as_non_overlapping_paths(paths) -> List[str]:
+def as_non_overlapping_paths(paths: Iterable[str]) -> Set[str]:
     paths = as_paths(paths)
     if len(paths) < 2:
         return paths
@@ -218,4 +215,4 @@ def as_non_overlapping_paths(paths) -> List[str]:
         prefixes = graph.prefixes(key)
         if len(prefixes) == 1:
             roots.add(path)
-    return sorted(roots)
+    return roots

@@ -1,5 +1,4 @@
 import click
-
 import hodgepodge.types
 import hodgepodge.files
 import hodgepodge.ux

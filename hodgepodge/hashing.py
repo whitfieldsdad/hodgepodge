@@ -69,7 +69,7 @@ def get_file_hashes(path: str, block_size: int = DEFAULT_BLOCK_SIZE_FOR_FILE_IO,
         SHA512: _get_hashlib_wrapper(hashlib.sha512()),
     }
     if verbose:
-        logger.info("Calculating file hashes: %s")
+        logger.info("Calculating file hashes: %s", path)
 
     with open(path, 'rb') as fp:
         while True:

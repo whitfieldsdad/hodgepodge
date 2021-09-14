@@ -1,6 +1,6 @@
 from hodgepodge.exceptions import CompressionError
 from stix2.datastore import DataSource, CompositeDataSource
-from typing import List, Union, Optional, Iterator, Tuple, Any
+from typing import List, Union, Optional, Iterator, Tuple, Any, Iterable, Dict
 
 import hodgepodge.compression
 import hodgepodge.files
@@ -52,7 +52,7 @@ def _get_data_source_from_directory(path: str, allow_custom: bool = True) -> sti
     return stix2.FileSystemSource(stix_dir=path, allow_custom=allow_custom)
 
 
-def get_composite_data_source(paths: List[str] = None, urls: List[str] = None, allow_custom: bool = True) -> CompositeDataSource:
+def get_composite_data_source(paths: Iterable[str] = None, urls: Iterable[str] = None, allow_custom: bool = True) -> CompositeDataSource:
     if not (paths or urls):
         raise ValueError("At least one path or URL is required")
 
@@ -71,9 +71,9 @@ def get_composite_data_source(paths: List[str] = None, urls: List[str] = None, a
     return combine_data_sources(data_sources)
 
 
-def combine_data_sources(data_sources: List[DataSource]) -> CompositeDataSource:
+def combine_data_sources(data_sources: Iterable[DataSource]) -> CompositeDataSource:
     src = CompositeDataSource()
-    src.add_data_sources(data_sources)
+    src.add_data_sources(list(data_sources))
     return src
 
 
@@ -83,8 +83,8 @@ def get_object(data_source: DataSource, object_id: str) -> Optional[dict]:
         return stix2_to_dict(row)
 
 
-def get_objects(data_source: DataSource, object_ids: List[str] = None, object_external_ids: List[str] = None,
-                object_types: List[str] = None, object_names: List[str] = None) -> List[dict]:
+def get_objects(data_source: DataSource, object_ids: Iterable[str] = None, object_external_ids: Iterable[str] = None,
+                object_types: Iterable[str] = None, object_names: Iterable[str] = None) -> List[dict]:
 
     return list(iter_objects(
         data_source=data_source,
@@ -92,12 +92,11 @@ def get_objects(data_source: DataSource, object_ids: List[str] = None, object_ex
         object_external_ids=object_external_ids,
         object_types=object_types,
         object_names=object_names,
-
     ))
 
 
-def iter_objects(data_source: DataSource, object_ids: List[str] = None, object_external_ids: List[str] = None,
-                 object_types: List[str] = None, object_names: List[str] = None) -> Iterator[dict]:
+def iter_objects(data_source: DataSource, object_ids: Iterable[str] = None, object_external_ids: Iterable[str] = None,
+                 object_types: Iterable[str] = None, object_names: Iterable[str] = None) -> Iterator[dict]:
 
     constraints = []
 

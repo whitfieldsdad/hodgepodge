@@ -1,9 +1,9 @@
+from hodgepodge.constants import INCLUDE_HASHES_BY_DEFAULT
 from dataclasses import dataclass
-from typing import List, Optional, Dict
+from typing import Iterable, Optional, Dict
 from requests import Session
 from requests.adapters import HTTPAdapter
 from urllib3.util.retry import Retry
-from hodgepodge.constants import INCLUDE_HASHES_BY_DEFAULT, VERBOSE_BY_DEFAULT
 
 import hodgepodge.files
 import hodgepodge.hashing
@@ -56,12 +56,14 @@ def get_automatic_retry_policy(max_retries_on_connection_errors: int = DEFAULT_M
     )
 
 
-def attach_http_request_policies_to_session(session: Session, policies: List[HttpRequestPolicy], prefixes: List[str] = None):
+def attach_http_request_policies_to_session(session: Session, policies: Iterable[HttpRequestPolicy],
+                                            prefixes: Iterable[str] = None):
+
     adapters = [policy.to_http_adapter() for policy in policies]
     attach_http_adapters_to_session(session=session, adapters=adapters, prefixes=prefixes)
 
 
-def attach_http_adapters_to_session(session: Session, adapters: List[HTTPAdapter], prefixes: List[str] = None):
+def attach_http_adapters_to_session(session: Session, adapters: Iterable[HTTPAdapter], prefixes: Iterable[str] = None):
     prefixes = prefixes or DEFAULT_PREFIXES
     for prefix in prefixes:
         for adapter in adapters:
@@ -69,11 +71,9 @@ def attach_http_adapters_to_session(session: Session, adapters: List[HTTPAdapter
 
 
 def download_file(url: str, path: str, session: Optional[Session] = None,
-                  include_hashes: bool = INCLUDE_HASHES_BY_DEFAULT, verbose: bool = VERBOSE_BY_DEFAULT) -> Optional[Dict[str, str]]:
+                  include_hashes: bool = INCLUDE_HASHES_BY_DEFAULT) -> Optional[Dict[str, str]]:
 
-    if verbose:
-        logging.info("Downloading file: {} -> {}".format(url, path))
-
+    logging.info("Downloading file: {} -> {}".format(url, path))
     hodgepodge.files.mkdir(path)
     with open(path, 'wb') as fp:
         session = session or Session()
@@ -82,4 +82,4 @@ def download_file(url: str, path: str, session: Optional[Session] = None,
 
         shutil.copyfileobj(response.raw, fp)
         if include_hashes:
-            return hodgepodge.hashing.get_file_hashes(path, verbose=verbose)
+            return hodgepodge.hashing.get_file_hashes(path)

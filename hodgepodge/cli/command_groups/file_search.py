@@ -1,5 +1,3 @@
-import os
-
 from hodgepodge import click
 from hodgepodge.toolkits.host.file.search import FileSearch
 from hodgepodge.hashing import HASH_ALGORITHMS
@@ -8,7 +6,7 @@ import hodgepodge.click
 import hodgepodge.types
 import hodgepodge.ux
 import click
-import sys
+import os
 
 
 @click.group(invoke_without_command=True)

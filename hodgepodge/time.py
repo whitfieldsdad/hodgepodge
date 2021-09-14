@@ -12,8 +12,9 @@ def now():
     return time.time()
 
 
-def is_within_range(timestamp: Union[float, datetime.datetime], minimum: Union[float, datetime.datetime] = None,
-                    maximum: Union[float, datetime.datetime] = None):
+def is_within_range(timestamp: Union[float, datetime.datetime],
+                    minimum: Union[float, datetime.datetime, datetime.date, None] = None,
+                    maximum: Union[float, datetime.datetime, datetime.date, None] = None):
 
     if minimum is not None and timestamp < minimum:
         return False
@@ -22,10 +23,9 @@ def is_within_range(timestamp: Union[float, datetime.datetime], minimum: Union[f
     return True
 
 
-def as_datetime(timestamp: Any) -> Optional[datetime.datetime]:
+def as_datetime(timestamp: Any) -> datetime.datetime:
     t = as_epoch_timestamp(timestamp)
-    if t:
-        return datetime.datetime.fromtimestamp(t)
+    return datetime.datetime.fromtimestamp(t)
 
 
 def as_epoch_timestamp(timestamp: Any) -> Optional[float]:
