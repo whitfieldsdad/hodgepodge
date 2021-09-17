@@ -1,71 +1,39 @@
-from typing import Dict
-from dataclasses import dataclass
-from hodgepodge.constants import FOLLOW_SYMLINKS_BY_DEFAULT, INCLUDE_HASHES_BY_DEFAULT, VERBOSE_BY_DEFAULT
+from hodgepodge.constants import FOLLOW_SYMLINKS_BY_DEFAULT, INCLUDE_FILE_HASHES_BY_DEFAULT
+from hodgepodge.objects.host.file import File
+from hodgepodge.objects.host.file_stat_result import FileStatResult
 from pathlib import Path
 
-import collections
+import hodgepodge.time
 import hodgepodge.hashing
 import os.path
 import shutil
 import datetime
 import logging
+import stat
 import os
+
+from hodgepodge.objects.host.file_timestamps import FileTimestamps
 
 logger = logging.getLogger(__name__)
 
-FileTimestamps = collections.namedtuple('Timestamps', ['modify_time', 'access_time', 'change_time'])
-
-
-@dataclass()
-class File:
-    seen_time: datetime.datetime
-    hashes: Dict[str, str]
-    last_access_time: datetime.datetime
-    last_change_time: datetime.datetime
-    last_modify_time: datetime.datetime
-    name: str
-    path: str
-    real_path: str
-    size: int
-
 
 def get_file_metadata(path: str, follow_symlinks: bool = FOLLOW_SYMLINKS_BY_DEFAULT,
-                      include_hashes: bool = INCLUDE_HASHES_BY_DEFAULT) -> File:
-
-    stat_result = os.stat(path, follow_symlinks=follow_symlinks)
-    size = stat_result.st_size
-
-    last_modify_time = datetime.datetime.fromtimestamp(stat_result.st_mtime_ns / 1e9)
-    last_access_time = datetime.datetime.fromtimestamp(stat_result.st_atime_ns / 1e9)
-    last_change_time = datetime.datetime.fromtimestamp(stat_result.st_ctime_ns / 1e9)
+                      include_file_hashes: bool = INCLUDE_FILE_HASHES_BY_DEFAULT) -> File:
 
     path = get_absolute_path(path)
-    name = get_base_name(path)
     real_path = get_real_path(path)
+    stat_result = get_file_stat(path, follow_symlinks=follow_symlinks)
 
     hashes = None
-    if include_hashes:
+    if include_file_hashes and stat.S_ISREG(stat_result.st_mode):
         hashes = hodgepodge.hashing.get_file_hashes(path)
 
     return File(
-        seen_time=datetime.datetime.now(),
-        name=name,
+        time=datetime.datetime.now(),
         path=path,
         real_path=real_path,
-        size=size,
-        last_modify_time=last_modify_time,
-        last_access_time=last_access_time,
-        last_change_time=last_change_time,
         hashes=hashes,
-    )
-
-
-def get_file_timestamps(path: str) -> FileTimestamps:
-    st = get_file_stat(path)
-    return FileTimestamps(
-        modify_time=st.st_mtime,
-        access_time=st.st_atime,
-        change_time=st.st_ctime,
+        stat_result=stat_result,
     )
 
 
@@ -73,14 +41,24 @@ def get_file_size(path: str) -> int:
     return get_file_stat(path).st_size
 
 
-def get_file_stat(path: str) -> os.stat_result:
-    try:
-        return os.stat(path)
-    except OSError:
-        try:
-            return os.lstat(path)
-        except OSError:
-            raise
+def get_file_stat(path: str, follow_symlinks: bool = FOLLOW_SYMLINKS_BY_DEFAULT) -> FileStatResult:
+    st = os.stat(path, follow_symlinks=follow_symlinks)
+    return FileStatResult(
+        st_mode=st.st_mode,
+        st_ino=st.st_ino,
+        st_dev=st.st_dev,
+        st_nlink=st.st_nlink,
+        st_uid=st.st_uid,
+        st_gid=st.st_gid,
+        st_size=st.st_size,
+        st_atime=st.st_atime,
+        st_mtime=st.st_mtime,
+        st_ctime=st.st_ctime,
+    )
+
+
+def get_file_timestamps(path: str, follow_symlinks: bool = FOLLOW_SYMLINKS_BY_DEFAULT) -> FileTimestamps:
+    return get_file_stat(path=path, follow_symlinks=follow_symlinks).timestamps
 
 
 def exists(path: str) -> bool:

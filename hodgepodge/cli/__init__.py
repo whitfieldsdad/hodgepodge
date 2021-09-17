@@ -1,4 +1,4 @@
-from hodgepodge.cli.command_groups.file_search import file_search
+from hodgepodge.cli.command_groups.files import file_search
 from hodgepodge.cli.command_groups.file import file
 
 import click

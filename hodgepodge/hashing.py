@@ -1,6 +1,6 @@
 from dataclasses import dataclass
 from typing import Dict, Callable
-from hodgepodge.constants import DEFAULT_BLOCK_SIZE_FOR_FILE_IO, VERBOSE_BY_DEFAULT
+from hodgepodge.constants import DEFAULT_BLOCK_SIZE_FOR_FILE_IO
 
 import logging
 import hashlib
@@ -61,16 +61,13 @@ def get_hashes(data: bytes) -> Dict[str, str]:
     }
 
 
-def get_file_hashes(path: str, block_size: int = DEFAULT_BLOCK_SIZE_FOR_FILE_IO, verbose: bool = VERBOSE_BY_DEFAULT) -> Dict[str, str]:
+def get_file_hashes(path: str, block_size: int = DEFAULT_BLOCK_SIZE_FOR_FILE_IO) -> Dict[str, str]:
     hashes = {
         MD5: _get_hashlib_wrapper(hashlib.md5()),
         SHA1: _get_hashlib_wrapper(hashlib.sha1()),
         SHA256: _get_hashlib_wrapper(hashlib.sha256()),
         SHA512: _get_hashlib_wrapper(hashlib.sha512()),
     }
-    if verbose:
-        logger.info("Calculating file hashes: %s", path)
-
     with open(path, 'rb') as fp:
         while True:
             data = fp.read(block_size)

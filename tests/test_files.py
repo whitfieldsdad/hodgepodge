@@ -5,6 +5,8 @@ import hodgepodge.files
 import tempfile
 import os
 
+from hodgepodge.objects.host.file_stat_result import FileStatResult
+
 
 class FileTestCases(TestCase):
     tmp_dir = tempfile.mkdtemp()
@@ -26,22 +28,22 @@ class FileTestCases(TestCase):
     def test_get_file_size(self):
         with tempfile.NamedTemporaryFile(dir=self.tmp_dir) as tmp:
 
-            #: The file should be zero bytes in size.
+            #: The file_search should be zero bytes in size.
             a = hodgepodge.files.get_file_size(path=tmp.name)
             self.assertEqual(a, 0)
 
-            #: Write 5 bytes to the file.
+            #: Write 5 bytes to the file_search.
             tmp.write(b"hello")
             tmp.flush()
 
-            #: Verify that the file size is now 5.
+            #: Verify that the file_search size is now 5.
             b = hodgepodge.files.get_file_size(tmp.name)
             self.assertEqual(b, 5)
 
     def test_get_file_stat(self):
         with tempfile.NamedTemporaryFile(dir=self.tmp_dir) as tmp:
             st = hodgepodge.files.get_file_stat(tmp.name)
-            self.assertIsInstance(st, os.stat_result)
+            self.assertIsInstance(st, FileStatResult)
 
     def test_exists(self):
         tmp = tempfile.mktemp(dir=self.tmp_dir)

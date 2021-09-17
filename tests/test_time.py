@@ -1,12 +1,13 @@
 from unittest import TestCase
-from hodgepodge.time import Time
 
 import hodgepodge.time
 import arrow
 
+from hodgepodge.objects.host.time_parts import TimeParts
+
 
 class TimeTestCase(TestCase):
-    def test_as_epoch_timestamp(self):
+    def test_convert_to_epoch_time_in_fractional_seconds(self):
         expected = 1436978073.0
         for hint, timestamp in [
             ['float', expected],
@@ -16,10 +17,10 @@ class TimeTestCase(TestCase):
             ['iso-8601', arrow.get(expected).isoformat()],
         ]:
             with self.subTest(hint=hint, timestamp=timestamp):
-                result = hodgepodge.time.as_epoch_timestamp(timestamp)
+                result = hodgepodge.time.convert_time_to_epoch_time_in_fractional_seconds(timestamp)
                 self.assertEqual(expected, result)
 
-    def test_as_duration(self):
+    def test_convert_time_to_parts(self):
         epoch = arrow.get(0).timestamp()
         timestamp = 1436978073.0
 
@@ -29,14 +30,14 @@ class TimeTestCase(TestCase):
             ['datetime.timedelta', arrow.get(timestamp) - arrow.get(epoch)],
         ]:
             with self.subTest(hint=hint, timestamp=timestamp):
-                expected = Time(
+                expected = TimeParts(
                     years=45,
                     days=206,
                     hours=16,
                     minutes=34,
                     seconds=33,
                 )
-                result = hodgepodge.time.as_duration(duration)
+                result = hodgepodge.time.convert_time_to_parts(duration)
                 self.assertEqual(expected, result)
 
     def test_within_range(self):

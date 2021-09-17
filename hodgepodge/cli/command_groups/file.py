@@ -12,7 +12,7 @@ logger = logging.getLogger(__name__)
 @click.pass_context
 def file(ctx: click.Context, path: str):
     """
-    Learn more about a single file.
+    Learn more about a single file_search.
     """
     ctx.ensure_object(dict)
     ctx.obj['path'] = hodgepodge.files.get_real_path(path)
@@ -32,7 +32,7 @@ def get_metadata(ctx: click.Context):
 
 
 @file.command()
-@click.option('--easy-to-read/--hard-to-read', default=True)
+@click.option('--easy-to-read/--hard-to-read', help="Display file sizes as strings rather than integers", default=True)
 @click.pass_context
 def get_size(ctx: click.Context, easy_to_read: bool):
     path = ctx.obj['path']
