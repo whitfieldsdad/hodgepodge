@@ -1,4 +1,4 @@
-from hodgepodge.constants import INCLUDE_HASHES_BY_DEFAULT
+from hodgepodge.constants import INCLUDE_FILE_HASHES_BY_DEFAULT
 from dataclasses import dataclass
 from typing import Iterable, Optional, Dict
 from requests import Session
@@ -71,9 +71,9 @@ def attach_http_adapters_to_session(session: Session, adapters: Iterable[HTTPAda
 
 
 def download_file(url: str, path: str, session: Optional[Session] = None,
-                  include_hashes: bool = INCLUDE_HASHES_BY_DEFAULT) -> Optional[Dict[str, str]]:
+                  include_file_hashes: bool = INCLUDE_FILE_HASHES_BY_DEFAULT) -> Optional[Dict[str, str]]:
 
-    logging.info("Downloading file: {} -> {}".format(url, path))
+    logging.info("Downloading file_search: {} -> {}".format(url, path))
     hodgepodge.files.mkdir(path)
     with open(path, 'wb') as fp:
         session = session or Session()
@@ -81,5 +81,5 @@ def download_file(url: str, path: str, session: Optional[Session] = None,
         response.raise_for_status()
 
         shutil.copyfileobj(response.raw, fp)
-        if include_hashes:
+        if include_file_hashes:
             return hodgepodge.hashing.get_file_hashes(path)
