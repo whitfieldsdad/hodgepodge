@@ -37,7 +37,7 @@ class File:
 
     @property
     def inode_number(self) -> int:
-        return self.stat_result.inode_number
+        return self.stat_result.file_inode_number
 
     @property
     def device_inode_number(self) -> int:

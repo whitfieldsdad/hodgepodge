@@ -25,15 +25,15 @@ def is_darwin():
 
 def normalize_os_type(os_type: str) -> Optional[str]:
     os_type = str.lower(os_type)
-    if hodgepodge.patterns.string_matches_any_glob(os_type, patterns=[
+    if hodgepodge.patterns.str_matches_glob(os_type, patterns=[
         '*microsoft*', '*windows*', '*cygwin*', '*mingw*', '*msys*', '*dos*'
     ]):
         return WINDOWS
-    elif hodgepodge.patterns.string_matches_any_glob(os_type, patterns=[
+    elif hodgepodge.patterns.str_matches_glob(os_type, patterns=[
         '*linux*', '*ubuntu*', '*rhel*', '*red*hat*', '*centos*', '*debian*', '*gentoo*', '*opensuse*', '*sles*',
     ]):
         return LINUX
-    elif hodgepodge.patterns.string_matches_any_glob(os_type, patterns=[
+    elif hodgepodge.patterns.str_matches_glob(os_type, patterns=[
         '*darwin*', '*mac*os*', '*os*x*'
     ]):
         return DARWIN

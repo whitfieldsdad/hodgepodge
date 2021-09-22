@@ -50,7 +50,7 @@ class FileSearch:
 
             #: Filter files by name and path.
             if self.filename_patterns:
-                matches = hodgepodge.patterns.any_string_matches_any_glob(
+                matches = hodgepodge.patterns.str_matches_glob(
                     values=file.names,
                     patterns=self.filename_patterns,
                     case_sensitive=self.case_sensitive,
@@ -108,7 +108,7 @@ def iter_matching_files(
 
         #: Filter files by name and path.
         if filename_patterns:
-            matches = hodgepodge.patterns.any_string_matches_any_glob(
+            matches = hodgepodge.patterns.str_matches_glob(
                 values=[file.name, file.path],
                 patterns=filename_patterns,
                 case_sensitive=case_sensitive,

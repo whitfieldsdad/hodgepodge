@@ -1,6 +1,6 @@
 from hodgepodge.exceptions import CompressionError
 from stix2.datastore import DataSource, CompositeDataSource
-from typing import List, Union, Optional, Iterator, Tuple, Any, Iterable, Dict
+from typing import List, Union, Optional, Iterator, Tuple, Any, Iterable
 
 import hodgepodge.compression
 import hodgepodge.files
@@ -120,7 +120,7 @@ def iter_objects(data_source: DataSource, object_ids: Iterable[str] = None, obje
                 continue
 
             names = [row['name']] + row.get('aliases', [])
-            if not hodgepodge.patterns.any_string_matches_any_glob(values=names, patterns=object_names):
+            if not hodgepodge.patterns.str_matches_glob(values=names, patterns=object_names):
                 continue
 
         #: Filter objects by external ID - performing this operation on the server-side appears to be broken. :(

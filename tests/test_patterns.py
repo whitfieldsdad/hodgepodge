@@ -4,28 +4,36 @@ import hodgepodge.patterns
 
 
 class PatternMatchingTestCases(TestCase):
-
-    def test_matches_regex_case_sensitive(self):
-        result = hodgepodge.patterns.string_matches_regex("hello world", "[a-z ]+", case_sensitive=True)
-        self.assertTrue(result)
-
-    def test_matches_regex_case_insensitive(self):
-        result = hodgepodge.patterns.string_matches_regex("hello world", "[a-z ]+", case_sensitive=False)
-        self.assertTrue(result)
-
-    def test_matches_glob_case_sensitive(self):
-        result = hodgepodge.patterns.string_matches_glob("hello world", "hello*world", case_sensitive=True)
-        self.assertTrue(result)
-
-    def test_matches_glob_case_insensitive(self):
-        result = hodgepodge.patterns.string_matches_glob("Hello World", "hello*world", case_sensitive=False)
-        self.assertTrue(result)
-
-    def test_any_string_matches_any_glob(self):
-        for values, patterns, expected in (
-            (['Dragonfly'], ['Dragonfly', 'Dragonfly', 'TG-4192', 'Crouching Yeti', 'IRON LIBERTY'], True),
-            (['Dragonfly'], ['ALLANITE', 'ALLANITE', 'Palmetto Fusion'], False),
+    def test_str_matches_glob(self):
+        for values, patterns, case_sensitive, expected in (
+            ('hello world', 'hello world', False, True),
+            ('hello world', 'hello*', False, True),
+            ('hello world', '*', False, True),
+            ('Hello WorLD', '*hello*', False, True),
+            ('Hello WorLD', '*hello*', True, False),
+            ('', '', False, True),
+            ('', '*', False, True),
+            (None, '*', False, False),
         ):
-            with self.subTest(values=values, patterns=patterns):
-                result = hodgepodge.patterns.any_string_matches_any_glob(values=values, patterns=patterns)
+            with self.subTest(values=values, patterns=patterns, case_sensitive=case_sensitive, expected=expected):
+                result = hodgepodge.patterns.str_matches_glob(values=values, patterns=patterns, case_sensitive=case_sensitive)
+                self.assertEqual(expected, result)
+
+    def test_str_matches_any_glob(self):
+        for values, patterns, case_sensitive, expected in (
+                ('hello world', ['hello world'], False, True),
+                ('hello world', ['hello*'], False, True),
+                ('hello world', ['*'], False, True),
+                ('Hello WorLD', ['*hello*', 'doughnuts'], False, True),
+                ('Hello WorLD', ['*hello*', 'world'], True, False),
+                ('', '', False, True),
+                ('', '*', False, True),
+                (None, '*', False, False),
+        ):
+            with self.subTest(values=values, patterns=patterns, case_sensitive=case_sensitive, expected=expected):
+                result = hodgepodge.patterns.str_matches_glob(
+                    values=values,
+                    patterns=patterns,
+                    case_sensitive=case_sensitive,
+                )
                 self.assertEqual(expected, result)
