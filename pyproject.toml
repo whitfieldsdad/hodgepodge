@@ -20,6 +20,7 @@ DAWG = "~=0.8.0"
 dacite = "~=1.6.0"
 urllib3 = "~=1.25.8"
 taxii2-client = "^2.3.0"
+redis = "^3.5.3"
 
 [tool.poetry.dev-dependencies]
 pytest = "^5.2"
