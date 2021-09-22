@@ -65,7 +65,7 @@ def convert_time_to_epoch_time_in_fractional_seconds(
 
 
 def convert_time_to_datetime(
-        timestamp: Union[int, float, datetime.datetime, datetime.date, arrow.Arrow, None]) -> Optional[datetime.datetime]:
+        timestamp: Union[str, int, float, datetime.datetime, datetime.date, arrow.Arrow, None]) -> Optional[datetime.datetime]:
     """
     Convert the provided timestamp into a datetime.
 
@@ -74,9 +74,11 @@ def convert_time_to_datetime(
     """
     if timestamp is None:
         return None
-
-    seconds = convert_time_to_epoch_time_in_fractional_seconds(timestamp)
-    return datetime.datetime.fromtimestamp(seconds)
+    elif isinstance(timestamp, str):
+        return dateutil.parser.parse(timestamp)
+    else:
+        seconds = convert_time_to_epoch_time_in_fractional_seconds(timestamp)
+        return datetime.datetime.fromtimestamp(seconds)
 
 
 def convert_time_to_date(
@@ -95,9 +97,9 @@ def convert_time_to_date(
 
 
 def is_within_range(
-        time: Union[int, float, datetime.datetime, datetime.date, arrow.Arrow],
-        min_time: Union[int, float, datetime.datetime, datetime.date, arrow.Arrow, None] = None,
-        max_time: Union[int, float, datetime.datetime, datetime.date, arrow.Arrow, None] = None) -> bool:
+        time: Union[str, int, float, datetime.datetime, datetime.date, arrow.Arrow],
+        min_time: Union[str, int, float, datetime.datetime, datetime.date, arrow.Arrow, None] = None,
+        max_time: Union[str, int, float, datetime.datetime, datetime.date, arrow.Arrow, None] = None) -> bool:
     """
     Determines whether or not the provided timestamps falls within the provided timeframe.
 
@@ -106,10 +108,10 @@ def is_within_range(
     :param max_time: an optional maximum time.
     :return: True if the provided timestamp falls within the provided timeframe and False otherwise.
     """
-
-    if min_time is not None and time < min_time:
+    time, min_time, max_time = map(convert_time_to_datetime, (time, min_time, max_time))
+    if min_time and time < min_time:
         return False
-    if max_time is not None and time > max_time:
+    if max_time and time > max_time:
         return False
     return True
 
