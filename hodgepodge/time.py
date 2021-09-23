@@ -98,20 +98,20 @@ def convert_time_to_date(
 
 def is_within_range(
         time: Union[str, int, float, datetime.datetime, datetime.date, arrow.Arrow],
-        min_time: Union[str, int, float, datetime.datetime, datetime.date, arrow.Arrow, None] = None,
-        max_time: Union[str, int, float, datetime.datetime, datetime.date, arrow.Arrow, None] = None) -> bool:
+        minimum: Union[str, int, float, datetime.datetime, datetime.date, arrow.Arrow, None] = None,
+        maximum: Union[str, int, float, datetime.datetime, datetime.date, arrow.Arrow, None] = None) -> bool:
     """
     Determines whether or not the provided timestamps falls within the provided timeframe.
 
     :param time: a timestamp.
-    :param min_time: an optional minimum time
-    :param max_time: an optional maximum time.
+    :param minimum: an optional minimum time
+    :param maximum: an optional maximum time.
     :return: True if the provided timestamp falls within the provided timeframe and False otherwise.
     """
-    time, min_time, max_time = map(convert_time_to_datetime, (time, min_time, max_time))
-    if min_time and time < min_time:
+    time, minimum, maximum = map(convert_time_to_datetime, (time, minimum, maximum))
+    if minimum and time < minimum:
         return False
-    if max_time and time > max_time:
+    if maximum and time > maximum:
         return False
     return True
 
