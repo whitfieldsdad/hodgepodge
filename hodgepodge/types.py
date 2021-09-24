@@ -8,6 +8,12 @@ import distutils.util
 import json
 
 
+def get_len(data: Any) -> int:
+    if is_iterator(data):
+        return sum(1 for _ in data)
+    return len(data)
+
+
 def is_iterable(data: Any) -> bool:
     try:
         iter(data)
