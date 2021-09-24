@@ -4,6 +4,7 @@ clean:
 	rm -rf dist
 
 update:
+	poetry show -o
 	poetry update
 	poetry export -f requirements.txt -o requirements.txt --without-hashes
 	poetry show --tree

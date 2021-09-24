@@ -26,6 +26,8 @@ def echo_len(rows: Any) -> None:
 
 
 def echo_as_json(rows: Any) -> None:
+    if hodgepodge.types.is_iterator(rows):
+        rows = list(rows)
     txt = json.dumps(rows)
     click.echo(txt)
 
