@@ -14,6 +14,34 @@ class IterableClass:
 
 
 class TypeTestCases(unittest.TestCase):
+    def test_select_from_dict(self):
+        data = {
+            'id': 'a4eaaf05-da54-4e87-bf84-ea4c17bd88f3',
+            'name': 'Mary Poppins',
+        }
+        keys = ['id']
+        expected = {
+            'id': 'a4eaaf05-da54-4e87-bf84-ea4c17bd88f3'
+        }
+        result = hodgepodge.types.select_from_dict(data=data, keys=keys)
+        self.assertEqual(expected, result)
+
+    def test_select_from_dict_stream(self):
+        rows = [
+            {
+                'id': 'a4eaaf05-da54-4e87-bf84-ea4c17bd88f3',
+                'name': 'Mary Poppins',
+            }
+        ]
+        keys = ['id']
+        expected = [
+            {
+                'id': 'a4eaaf05-da54-4e87-bf84-ea4c17bd88f3'
+            }
+        ]
+        result = list(hodgepodge.types.select_from_dict_stream(rows=rows, keys=keys))
+        self.assertEqual(expected, result)
+
     def test_is_iterable(self):
         for vector, expected in [
             (None, False),

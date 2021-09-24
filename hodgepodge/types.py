@@ -1,4 +1,4 @@
-from typing import Any, Union, Dict
+from typing import Any, Union, Dict, Iterable, Iterator
 
 import hodgepodge.json
 import collections
@@ -6,6 +6,20 @@ import dacite
 import dataclasses
 import distutils.util
 import json
+
+
+def select_from_dict(data: dict, keys: Iterable[str]) -> dict:
+    if keys:
+        keys = set(keys)
+        data = dict((k, v) for (k, v) in data.items() if k in keys)
+    return data
+
+
+def select_from_dict_stream(rows: Iterator[dict], keys: Iterable[str]) -> Iterator[dict]:
+    for row in rows:
+        row = select_from_dict(data=row, keys=keys)
+        if row:
+            yield row
 
 
 def get_len(data: Any) -> int:
