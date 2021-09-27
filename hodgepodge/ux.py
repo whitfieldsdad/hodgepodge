@@ -20,7 +20,7 @@ def pretty_time(timestamp: Any, include_delta: bool = False) -> str:
 
     hint = None
     if include_delta:
-        a = hodgepodge.time.get_current_time_as_epoch_time_in_fractional_seconds()
+        a = hodgepodge.time.current_time_as_epoch_time()
         b = timestamp
         if a != b:
             d = pretty_duration(a - b)
@@ -39,7 +39,7 @@ def pretty_time(timestamp: Any, include_delta: bool = False) -> str:
 
 def pretty_duration(seconds: Any) -> Union[str, None]:
     parts = []
-    years, days, hours, minutes, seconds = hodgepodge.time.convert_time_to_parts(seconds)
+    years, days, hours, minutes, seconds = hodgepodge.time.to_duration(seconds)
     for unit, value in [
         ('year', years),
         ('day', days),

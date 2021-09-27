@@ -1,13 +1,29 @@
 from unittest import TestCase
+from hodgepodge.objects.time.duration import Duration
 
 import hodgepodge.time
+import datetime
 import arrow
-
-from hodgepodge.objects.host.time_parts import TimeParts
 
 
 class TimeTestCase(TestCase):
-    def test_convert_to_epoch_time_in_fractional_seconds(self):
+    def test_current_time_as_date(self):
+        timestamp = hodgepodge.time.current_time_as_date()
+        self.assertIsInstance(timestamp, datetime.date)
+
+    def test_current_time_as_datetime(self):
+        timestamp = hodgepodge.time.current_time_as_datetime()
+        self.assertIsInstance(timestamp, datetime.datetime)
+
+    def test_current_time_as_arrow(self):
+        timestamp = hodgepodge.time.current_time_as_arrow()
+        self.assertIsInstance(timestamp, arrow.Arrow)
+
+    def test_current_time_as_epoch_time(self):
+        timestamp = hodgepodge.time.current_time_as_epoch_time()
+        self.assertIsInstance(timestamp, float)
+
+    def test_to_epoch_time(self):
         expected = 1436978073.0
         for hint, timestamp in [
             ['float', expected],
@@ -17,10 +33,10 @@ class TimeTestCase(TestCase):
             ['iso-8601', arrow.get(expected).isoformat()],
         ]:
             with self.subTest(hint=hint, timestamp=timestamp):
-                result = hodgepodge.time.convert_time_to_epoch_time_in_fractional_seconds(timestamp)
+                result = hodgepodge.time.to_epoch_time(timestamp)
                 self.assertEqual(expected, result)
 
-    def test_convert_time_to_parts(self):
+    def test_to_duration(self):
         epoch = arrow.get(0).timestamp()
         timestamp = 1436978073.0
 
@@ -30,17 +46,17 @@ class TimeTestCase(TestCase):
             ['datetime.timedelta', arrow.get(timestamp) - arrow.get(epoch)],
         ]:
             with self.subTest(hint=hint, timestamp=timestamp):
-                expected = TimeParts(
+                expected = Duration(
                     years=45,
                     days=206,
                     hours=16,
                     minutes=34,
                     seconds=33,
                 )
-                result = hodgepodge.time.convert_time_to_parts(duration)
+                result = hodgepodge.time.to_duration(duration)
                 self.assertEqual(expected, result)
 
-    def test_within_range(self):
+    def test_is_within_range(self):
         t = arrow.now()
         a = t.shift(hours=-1).float_timestamp
         b = t.shift(hours=+1).float_timestamp

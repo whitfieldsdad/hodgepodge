@@ -48,15 +48,15 @@ class FileStatResult:
 
     @property
     def last_modified_time(self) -> datetime.datetime:
-        return hodgepodge.time.convert_time_to_datetime(self.st_mtime)
+        return hodgepodge.time.to_datetime(self.st_mtime)
 
     @property
     def last_accessed_time(self) -> datetime.datetime:
-        return hodgepodge.time.convert_time_to_datetime(self.st_atime)
+        return hodgepodge.time.to_datetime(self.st_atime)
 
     @property
     def last_changed_time(self) -> datetime.datetime:
-        return hodgepodge.time.convert_time_to_datetime(self.st_ctime)
+        return hodgepodge.time.to_datetime(self.st_ctime)
 
     def get_mode(self) -> int:
         return self.mode
