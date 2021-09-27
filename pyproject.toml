@@ -1,6 +1,6 @@
 [tool.poetry]
 name = "hodgepodge"
-version = "1.0.0"
+version = "1.0.1"
 description = ""
 authors = ["Tyler Fisher <tylerfisher@tylerfisher.ca>"]
 readme = "README.md"
@@ -23,7 +23,7 @@ taxii2-client = "^2.3.0"
 redis = "^3.5.3"
 
 [tool.poetry.dev-dependencies]
-pytest = "^5.2"
+pytest = "^6.2.5"
 coverage = {extras = ["toml"], version = "^5.5"}
 
 [tool.coverage.run]
