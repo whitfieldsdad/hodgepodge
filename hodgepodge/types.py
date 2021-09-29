@@ -48,6 +48,8 @@ def is_iterator(data: Any) -> bool:
 
 
 def str_to_bool(string: str) -> bool:
+    if isinstance(string, bool):
+        return string
     return bool(distutils.util.strtobool(string))
 
 
