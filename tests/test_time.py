@@ -56,7 +56,7 @@ class TimeTestCase(TestCase):
                 result = hodgepodge.time.to_duration(duration)
                 self.assertEqual(expected, result)
 
-    def test_is_in_range(self):
+    def test_in_range(self):
         t = arrow.now()
         a = t.shift(hours=-1).float_timestamp
         b = t.shift(hours=+1).float_timestamp
@@ -75,6 +75,6 @@ class TimeTestCase(TestCase):
             a, b, expected = subtest
 
             with self.subTest(i=i, t=t, a=a, b=b):
-                result = hodgepodge.time.is_in_range(t, a, b)
+                result = hodgepodge.time.in_range(t, a, b)
                 self.assertIsInstance(result, bool)
                 self.assertEqual(result, expected)

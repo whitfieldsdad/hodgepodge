@@ -93,7 +93,7 @@ def to_duration(seconds: Union[int, float, datetime.timedelta]) -> Duration:
     )
 
 
-def is_in_range(
+def in_range(
         timestamp: Union[str, int, float, datetime.datetime, datetime.date, arrow.Arrow],
         minimum: Union[str, int, float, datetime.datetime, datetime.date, arrow.Arrow, None] = None,
         maximum: Union[str, int, float, datetime.datetime, datetime.date, arrow.Arrow, None] = None) -> bool:
