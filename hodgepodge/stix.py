@@ -1,10 +1,10 @@
-from hodgepodge.exceptions import CompressionError
+from hodgepodge.error import CompressionError
 from stix2.datastore import DataSource, CompositeDataSource
 from typing import List, Union, Optional, Iterator, Tuple, Any, Iterable
 
+import hodgepodge.pattern_matching
 import hodgepodge.compression
 import hodgepodge.files
-import hodgepodge.patterns
 import json
 import logging
 import stix2.datastore.memory
@@ -22,10 +22,12 @@ PUBLIC_TAXII_SERVICE_URLS = [
     MITRE_ATTACK_ICS_URL,
 ]
 
+DEFAULT_TAXII_PAGE_SIZE = 5000
 
-def get_taxii_data_source(url, allow_custom: bool = True, items_per_page: int = 5000) -> stix2.TAXIICollectionSource:
+
+def get_taxii_data_source(url, allow_custom: bool = True, page_size: int = 5000) -> stix2.TAXIICollectionSource:
     collection = taxii2client.v20.Collection(url)
-    return stix2.TAXIICollectionSource(collection, allow_custom=allow_custom, items_per_page=items_per_page)
+    return stix2.TAXIICollectionSource(collection, allow_custom=allow_custom, items_per_page=page_size)
 
 
 def get_filesystem_data_source(path: str, allow_custom: bool = True) -> Union[stix2.MemorySource, stix2.FileSystemSource]:
@@ -120,7 +122,7 @@ def iter_objects(data_source: DataSource, object_ids: Iterable[str] = None, obje
                 continue
 
             names = [row['name']] + row.get('aliases', [])
-            if not hodgepodge.patterns.str_matches_glob(values=names, patterns=object_names):
+            if not hodgepodge.pattern_matching.str_matches_glob(values=names, patterns=object_names):
                 continue
 
         #: Filter objects by external ID - performing this operation on the server-side appears to be broken. :(

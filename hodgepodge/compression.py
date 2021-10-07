@@ -1,6 +1,5 @@
-from hodgepodge.exceptions import CompressionError
+from hodgepodge.error import CompressionError
 
-import hodgepodge.files
 import hodgepodge.types
 import zlib
 

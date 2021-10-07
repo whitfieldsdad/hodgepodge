@@ -5,7 +5,7 @@ import hodgepodge.platforms
 
 
 class PlatformTestCases(TestCase):
-    def test_normalize_os_type(self):
+    def test_parse_os_type(self):
         for os_type, expected in [
             ('darwin', DARWIN),
             ('macOS', DARWIN),
@@ -29,5 +29,5 @@ class PlatformTestCases(TestCase):
             ('Cygwin 2.2 64 bit (Windows 10 64-bit)', WINDOWS),
         ]:
             with self.subTest(os_type=os_type, expected=expected):
-                result = hodgepodge.platforms.normalize_os_type(os_type)
+                result = hodgepodge.platforms.parse_os_type(os_type)
                 self.assertEqual(expected, result)

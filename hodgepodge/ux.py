@@ -1,11 +1,22 @@
-from typing import Union, Any
+from typing import Union, Any, Optional
 
 import arrow
+import hodgepodge.files
 import hodgepodge.time
 import hodgepodge.types
 
 
-def pretty_file_size(n: int) -> str:
+def get_pretty_file_size(path: Optional[str] = None, size: Optional[int] = None) -> str:
+    if size is not None:
+        return get_pretty_byte_count(size)
+    elif path:
+        sz = hodgepodge.files.get_size(path)
+        return get_pretty_byte_count(sz)
+    else:
+        raise ValueError("A file size or path is required")
+
+
+def get_pretty_byte_count(n: int) -> str:
     n = abs(n)
     for unit in '', 'Ki', 'Mi', 'Gi', 'Ti', 'Pi', 'Ei', 'Zi':
         if n < 1000.0:
@@ -14,7 +25,7 @@ def pretty_file_size(n: int) -> str:
     return "%.1f%sB" % (n, 'Yi')
 
 
-def pretty_time(timestamp: Any, include_delta: bool = False) -> str:
+def get_pretty_timestamp(timestamp: Any, include_delta: bool = False) -> str:
     if timestamp is None:
         return 'n/a'
 
@@ -23,7 +34,7 @@ def pretty_time(timestamp: Any, include_delta: bool = False) -> str:
         a = hodgepodge.time.current_time_as_epoch_time()
         b = timestamp
         if a != b:
-            d = pretty_duration(a - b)
+            d = get_pretty_duration(a - b)
             if a > b:
                 hint = '{} ago'.format(d)
             else:
@@ -37,7 +48,7 @@ def pretty_time(timestamp: Any, include_delta: bool = False) -> str:
     return timestamp
 
 
-def pretty_duration(seconds: Any) -> Union[str, None]:
+def get_pretty_duration(seconds: Any) -> Union[str, None]:
     parts = []
     years, days, hours, minutes, seconds = hodgepodge.time.to_duration(seconds)
     for unit, value in [

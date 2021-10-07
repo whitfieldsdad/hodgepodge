@@ -1,6 +1,6 @@
 from unittest import TestCase
 
-import hodgepodge.network
+import hodgepodge.networking
 
 
 class NetworkTestCases(TestCase):
@@ -11,5 +11,5 @@ class NetworkTestCases(TestCase):
             ('00:23:3A:99:0C:21', '00:23:3a:99:0c:21'),
         ):
             with self.subTest(mac_address=mac_address, expected=expected):
-                result = hodgepodge.network.parse_mac_address(mac_address)
+                result = hodgepodge.networking.parse_mac_address(mac_address)
                 self.assertEqual(expected, result)

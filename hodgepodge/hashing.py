@@ -1,11 +1,10 @@
+from typing import Callable, Optional, Union
 from dataclasses import dataclass
-from typing import Dict, Callable
-from hodgepodge.constants import DEFAULT_BLOCK_SIZE_FOR_FILE_IO
 
-import logging
 import hashlib
+import hodgepodge.types
 
-logger = logging.getLogger(__name__)
+DEFAULT_FILE_IO_BLOCK_SIZE = 8192
 
 MD5 = 'md5'
 SHA1 = 'sha1'
@@ -13,6 +12,14 @@ SHA256 = 'sha256'
 SHA512 = 'sha512'
 
 HASH_ALGORITHMS = [MD5, SHA1, SHA256, SHA512]
+
+
+@dataclass(frozen=True)
+class Hashes:
+    md5: Optional[str]
+    sha1: Optional[str]
+    sha256: Optional[str]
+    sha512: Optional[str]
 
 
 @dataclass(frozen=True)
@@ -30,38 +37,44 @@ def _get_hashlib_wrapper(f) -> _HashlibWrapper:
     )
 
 
-def _get_hex_digest_via_hashlib(f, data: bytes) -> str:
+def _get_hex_digest_via_hashlib(f, data: Union[str, bytes]) -> str:
+    if isinstance(data, str):
+        data = hodgepodge.types.str_to_bytes(data)
+
     h = _get_hashlib_wrapper(f)
     h.update(data)
     return h.get_hex_digest()
 
 
-def get_md5(data: bytes) -> str:
+def get_md5(data: Union[str, bytes]) -> str:
     return _get_hex_digest_via_hashlib(hashlib.md5(), data=data)
 
 
-def get_sha1(data: bytes) -> str:
+def get_sha1(data: Union[str, bytes]) -> str:
     return _get_hex_digest_via_hashlib(hashlib.sha1(), data=data)
 
 
-def get_sha256(data: bytes) -> str:
+def get_sha256(data: Union[str, bytes]) -> str:
     return _get_hex_digest_via_hashlib(hashlib.sha256(), data=data)
 
 
-def get_sha512(data: bytes) -> str:
+def get_sha512(data: Union[str, bytes]) -> str:
     return _get_hex_digest_via_hashlib(hashlib.sha512(), data=data)
 
 
-def get_hashes(data: bytes) -> Dict[str, str]:
-    return {
-        MD5: get_md5(data),
-        SHA1: get_sha1(data),
-        SHA256: get_sha256(data),
-        SHA512: get_sha512(data),
-    }
+def get_hashes(data: Union[str, bytes]) -> Hashes:
+    if isinstance(data, str):
+        data = hodgepodge.types.str_to_bytes(data)
+
+    return Hashes(
+        md5=get_md5(data),
+        sha1=get_sha1(data),
+        sha256=get_sha256(data),
+        sha512=get_sha512(data),
+    )
 
 
-def get_file_hashes(path: str, block_size: int = DEFAULT_BLOCK_SIZE_FOR_FILE_IO) -> Dict[str, str]:
+def get_file_hashes(path: str, block_size: int = DEFAULT_FILE_IO_BLOCK_SIZE) -> Hashes:
     hashes = {
         MD5: _get_hashlib_wrapper(hashlib.md5()),
         SHA1: _get_hashlib_wrapper(hashlib.sha1()),
@@ -79,4 +92,4 @@ def get_file_hashes(path: str, block_size: int = DEFAULT_BLOCK_SIZE_FOR_FILE_IO)
 
     for (k, h) in hashes.items():
         hashes[k] = h.get_hex_digest()
-    return hashes
+    return Hashes(**hashes)

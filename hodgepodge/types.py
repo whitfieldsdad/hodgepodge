@@ -1,6 +1,6 @@
 from typing import Any, Union, Dict, Iterable, Iterator
 
-import hodgepodge.json
+import hodgepodge.serialization
 import collections
 import dacite
 import dataclasses
@@ -8,21 +8,21 @@ import distutils.util
 import json
 
 
-def select_from_dict(data: dict, keys: Iterable[str]) -> dict:
+def filter_dict(data: dict, keys: Iterable[str]) -> dict:
     if keys:
         keys = set(keys)
         data = dict((k, v) for (k, v) in data.items() if k in keys)
     return data
 
 
-def select_from_dict_stream(rows: Iterator[dict], keys: Iterable[str]) -> Iterator[dict]:
-    for row in rows:
-        row = select_from_dict(data=row, keys=keys)
+def filter_dict_stream(stream: Iterable[dict], keys: Iterable[str]) -> Iterator[dict]:
+    for row in stream:
+        row = filter_dict(data=row, keys=keys)
         if row:
             yield row
 
 
-def get_len(data: Any) -> int:
+def get_length(data: Any) -> int:
     if is_iterator(data):
         return sum(1 for _ in data)
     return len(data)
@@ -116,7 +116,7 @@ def dict_to_json(data: dict, indent: Union[int, None] = None, sort_keys: bool = 
 
     if remove_empty_values:
         data = remove_empty_values_from_dict(data)
-    return json.dumps(data, indent=indent, sort_keys=sort_keys, default=hodgepodge.json.custom_json_serializer)
+    return json.dumps(data, indent=indent, sort_keys=sort_keys, default=hodgepodge.serialization.custom_json_serializer)
 
 
 def to_json(data: Any, indent: Union[int, None] = None, sort_keys: bool = True) -> str:

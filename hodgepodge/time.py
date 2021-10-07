@@ -1,10 +1,32 @@
 from typing import Union, Optional
-from hodgepodge.objects.time.duration import Duration
+from dataclasses import dataclass
 
 import datetime
 import arrow
 import dateutil.parser
 import time
+
+
+@dataclass()
+class Duration:
+    years: int = 0
+    days: int = 0
+    hours: int = 0
+    minutes: int = 0
+    seconds: int = 0
+
+    def to_datetime(self) -> datetime.datetime:
+        seconds = sum((
+            self.seconds,
+            self.minutes * 60,
+            self.hours * 60 * 60,
+            self.days * 24 * 60 * 60,
+            self.years * 24 * 60 * 60 * 365,
+        ))
+        return datetime.datetime.fromtimestamp(seconds)
+
+    def __iter__(self):
+        return iter((self.years, self.days, self.hours, self.minutes, self.seconds))
 
 
 def current_time_as_date() -> datetime.date:
@@ -71,7 +93,7 @@ def to_duration(seconds: Union[int, float, datetime.timedelta]) -> Duration:
     )
 
 
-def is_within_range(
+def is_in_range(
         timestamp: Union[str, int, float, datetime.datetime, datetime.date, arrow.Arrow],
         minimum: Union[str, int, float, datetime.datetime, datetime.date, arrow.Arrow, None] = None,
         maximum: Union[str, int, float, datetime.datetime, datetime.date, arrow.Arrow, None] = None) -> bool:

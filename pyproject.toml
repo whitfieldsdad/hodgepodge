@@ -1,6 +1,6 @@
 [tool.poetry]
 name = "hodgepodge"
-version = "1.0.3"
+version = "2.0.0"
 description = ""
 authors = ["Tyler Fisher <tylerfisher@tylerfisher.ca>"]
 readme = "README.md"

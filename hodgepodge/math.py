@@ -1,7 +1,7 @@
 from typing import Union, Optional
 
 
-def is_within_range(
+def in_range(
         value: Union[int, float],
         minimum: Optional[Union[int, float]] = None,
         maximum: Optional[Union[int, float]] = None) -> bool:

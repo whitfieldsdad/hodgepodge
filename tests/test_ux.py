@@ -27,7 +27,7 @@ class UXTestCases(TestCase):
                 result = hodgepodge.ux.remove_suffix(expected, "s")
                 self.assertEqual(expected, result)
 
-    def test_pretty_file_size(self):
+    def test_get_pretty_byte_count(self):
         for size, expected in [
             (1000, '1.0KiB'),
             (1000 * 1.5, '1.5KiB'),
@@ -41,20 +41,20 @@ class UXTestCases(TestCase):
             (1000 * 1000000000000000000 * 3, '3.0ZiB'),
         ]:
             with self.subTest(size):
-                result = hodgepodge.ux.pretty_file_size(size)
+                result = hodgepodge.ux.get_pretty_byte_count(size)
                 self.assertEqual(expected, result)
 
-    def test_pretty_time(self):
+    def test_get_pretty_timestamp(self):
         for timestamp in [
             1624089237.688544,
             1624089237,
         ]:
             with self.subTest(timestamp=timestamp):
                 expected = 'Jun 19, 2021, 07:53:57 AM'
-                result = hodgepodge.ux.pretty_time(timestamp, include_delta=False)
+                result = hodgepodge.ux.get_pretty_timestamp(timestamp, include_delta=False)
                 self.assertEqual(expected, result)
 
-    def test_pretty_time_with_delta(self):
+    def test_get_pretty_timestamp_with_delta(self):
         now = time.time()
         for timestamp, expected_parts, expected_tense in [
             [now - 86400, '1 day', 'ago'],
@@ -67,7 +67,7 @@ class UXTestCases(TestCase):
             [now - (86400 * 365 * 1.13), '1 year, 47 days, 10 hours, and 48 minutes', 'ago'],
         ]:
             with self.subTest(expected_parts=expected_parts, expected_tense=expected_tense):
-                result = hodgepodge.ux.pretty_time(timestamp, include_delta=True)
+                result = hodgepodge.ux.get_pretty_timestamp(timestamp, include_delta=True)
 
                 #: Parse the delta.
                 match = re.match(r'.+\((.*)(ago|from now)\)', result)
@@ -77,11 +77,11 @@ class UXTestCases(TestCase):
                 self.assertEqual(expected_parts, parts)
                 self.assertEqual(expected_tense, tense)
 
-    def test_pretty_duration(self):
+    def test_get_pretty_duration(self):
         t = arrow.now()
         d = t.shift(days=+30) - t
 
-        result = hodgepodge.ux.pretty_duration(d)
+        result = hodgepodge.ux.get_pretty_duration(d)
         expected = '30 days'
         self.assertEqual(expected, result)
 

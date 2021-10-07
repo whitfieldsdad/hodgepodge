@@ -1,14 +1,17 @@
-from hodgepodge.constants import INCLUDE_FILE_HASHES_BY_DEFAULT
 from dataclasses import dataclass
-from typing import Iterable, Optional, Dict
-from requests import Session
+from typing import Iterable, Optional
+from requests import Session as _Session
 from requests.adapters import HTTPAdapter
 from urllib3.util.retry import Retry
+from hodgepodge.hashing import Hashes
+from hodgepodge.files import INCLUDE_FILE_HASHES_BY_DEFAULT
 
+import hodgepodge.hashing as hashing
 import hodgepodge.files
-import hodgepodge.hashing
+import hodgepodge.logging
 import logging
 import shutil
+
 
 logger = logging.getLogger(__name__)
 
@@ -18,6 +21,18 @@ DEFAULT_MAX_RETRIES_ON_REDIRECT = 5
 
 DEFAULT_BACKOFF_FACTOR = 0.1
 DEFAULT_PREFIXES = ['http://', 'https://']
+
+
+def configure_http_request_logging(log_level=logging.INFO):
+    hodgepodge.logging.configure_http_request_logging(log_level=log_level)
+
+
+class Session(_Session):
+    def request(self, method, url, *args, **kwargs):
+        logger.info("[   ] HTTP %s: %s", method, url)
+        response = super(Session, self).request(*args, **kwargs)
+        logger.info("[%d] HTTP %s: %s", response.status_code, method, url)
+        return response
 
 
 @dataclass(frozen=True)
@@ -56,24 +71,24 @@ def get_automatic_retry_policy(max_retries_on_connection_errors: int = DEFAULT_M
     )
 
 
-def attach_http_request_policies_to_session(session: Session, policies: Iterable[HttpRequestPolicy],
-                                            prefixes: Iterable[str] = None):
-
+def attach_session_policies(session: _Session, policies: Iterable[HttpRequestPolicy], prefixes: Iterable[str] = None):
     adapters = [policy.to_http_adapter() for policy in policies]
-    attach_http_adapters_to_session(session=session, adapters=adapters, prefixes=prefixes)
+    attach_session_adapters(session=session, adapters=adapters, prefixes=prefixes)
 
 
-def attach_http_adapters_to_session(session: Session, adapters: Iterable[HTTPAdapter], prefixes: Iterable[str] = None):
+def attach_session_adapters(session: _Session, adapters: Iterable[HTTPAdapter], prefixes: Iterable[str] = None):
     prefixes = prefixes or DEFAULT_PREFIXES
     for prefix in prefixes:
         for adapter in adapters:
             session.mount(prefix, adapter)
 
 
-def download_file(url: str, path: str, session: Optional[Session] = None,
-                  include_file_hashes: bool = INCLUDE_FILE_HASHES_BY_DEFAULT) -> Optional[Dict[str, str]]:
+def download_file(
+        url: str,
+        path: str,
+        session: Optional[_Session] = None,
+        include_file_hashes: bool = INCLUDE_FILE_HASHES_BY_DEFAULT) -> Optional[Hashes]:
 
-    logging.info("Downloading file_search: {} -> {}".format(url, path))
     hodgepodge.files.mkdir(path)
     with open(path, 'wb') as fp:
         session = session or Session()
@@ -82,4 +97,4 @@ def download_file(url: str, path: str, session: Optional[Session] = None,
 
         shutil.copyfileobj(response.raw, fp)
         if include_file_hashes:
-            return hodgepodge.hashing.get_file_hashes(path)
+            return hashing.get_file_hashes(path)

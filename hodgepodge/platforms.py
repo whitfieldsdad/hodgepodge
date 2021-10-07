@@ -1,39 +1,53 @@
 from typing import Optional
 
 import hodgepodge
-import hodgepodge.patterns
-import sys
+import hodgepodge.pattern_matching
+import platform
+import struct
 
 WINDOWS = 'windows'
 LINUX = 'linux'
 DARWIN = 'darwin'
 
-OS_TYPES = sorted([WINDOWS, LINUX, DARWIN])
+OS_TYPE = platform.system()
+OS_VERSION = platform.version()
 
 
-def is_windows():
-    return sys.platform == WINDOWS
+def get_os_type() -> str:
+    return OS_TYPE
 
 
-def is_linux():
-    return sys.platform == LINUX
+def get_os_version() -> str:
+    return OS_VERSION
 
 
-def is_darwin():
-    return sys.platform == DARWIN
+def get_os_bitness() -> int:
+    return 8 * struct.calcsize("P")
 
 
-def normalize_os_type(os_type: str) -> Optional[str]:
+def is_windows() -> bool:
+    return OS_TYPE.lower() == WINDOWS
+
+
+def is_linux() -> bool:
+    return OS_TYPE.lower() == LINUX
+
+
+def is_darwin() -> bool:
+    return OS_TYPE.lower() == DARWIN
+
+
+def parse_os_type(os_type: str) -> Optional[str]:
     os_type = str.lower(os_type)
-    if hodgepodge.patterns.str_matches_glob(os_type, patterns=[
+    if hodgepodge.pattern_matching.str_matches_glob(os_type, patterns=[
         '*microsoft*', '*windows*', '*cygwin*', '*mingw*', '*msys*', '*dos*'
     ]):
         return WINDOWS
-    elif hodgepodge.patterns.str_matches_glob(os_type, patterns=[
+    elif hodgepodge.pattern_matching.str_matches_glob(os_type, patterns=[
         '*linux*', '*ubuntu*', '*rhel*', '*red*hat*', '*centos*', '*debian*', '*gentoo*', '*opensuse*', '*sles*',
     ]):
         return LINUX
-    elif hodgepodge.patterns.str_matches_glob(os_type, patterns=[
+    elif hodgepodge.pattern_matching.str_matches_glob(os_type, patterns=[
         '*darwin*', '*mac*os*', '*os*x*'
     ]):
         return DARWIN

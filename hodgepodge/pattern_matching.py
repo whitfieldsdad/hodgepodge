@@ -1,7 +1,8 @@
 from typing import Iterable, Union
-from hodgepodge.constants import STRING_COMPARISON_IS_CASE_SENSITIVE_BY_DEFAULT
 
 import fnmatch
+
+STRING_COMPARISON_IS_CASE_SENSITIVE_BY_DEFAULT = False
 
 
 def str_matches_glob(

@@ -1,17 +1,15 @@
 from requests import Session
-from typing import Optional, Dict
-from hodgepodge.constants import INCLUDE_FILE_HASHES_BY_DEFAULT
+from typing import Optional
+from hodgepodge.hashing import Hashes
+from hodgepodge.files import INCLUDE_FILE_HASHES_BY_DEFAULT
 
-import hodgepodge.requests
-import logging
-
-logger = logging.getLogger(__name__)
+import hodgepodge.http
 
 
 def download_file(url: str, path: str, session: Optional[Session] = None,
-                  include_file_hashes: bool = INCLUDE_FILE_HASHES_BY_DEFAULT) -> Optional[Dict[str, str]]:
+                  include_file_hashes: bool = INCLUDE_FILE_HASHES_BY_DEFAULT) -> Optional[Hashes]:
 
-    return hodgepodge.requests.download_file(
+    return hodgepodge.http.download_file(
         url=url,
         path=path,
         session=session,

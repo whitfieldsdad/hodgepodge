@@ -1,10 +1,10 @@
 from unittest import TestCase
 
-import hodgepodge.numbers
+import hodgepodge.math
 
 
-class NumberHelperTestCases(TestCase):
-    def test_is_within_range(self):
+class MathTestCases(TestCase):
+    def test_in_range(self):
         for value, minimum, maximum, expected in (
             (0, 0, 0, True),
             (25, 25, 25, True),
@@ -14,5 +14,5 @@ class NumberHelperTestCases(TestCase):
             (25, 26, 27, False),
         ):
             with self.subTest(value=value, minimum=minimum, maximum=maximum):
-                result = hodgepodge.numbers.is_within_range(value=value, minimum=minimum, maximum=maximum)
+                result = hodgepodge.math.in_range(value=value, minimum=minimum, maximum=maximum)
                 self.assertEqual(expected, result)

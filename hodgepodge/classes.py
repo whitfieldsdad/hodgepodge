@@ -10,9 +10,9 @@ def get_attributes(obj: Any, ignore_hidden: bool = True) -> Dict[str, Any]:
 
 def get_functions(obj: Any, ignore_hidden: bool = True) -> Dict[str, Callable[[Any], Any]]:
     attrs = get_attributes(obj=obj, ignore_hidden=ignore_hidden)
-    return dict((k, v) for (k, v) in attrs.items() if callable(v) is True)
+    return dict((k, v) for (k, v) in attrs.items() if callable(v))
 
 
 def get_variables(obj: Any, ignore_hidden: bool = True) -> Dict[str, Callable[[Any], Any]]:
     attrs = get_attributes(obj=obj, ignore_hidden=ignore_hidden)
-    return dict((k, v) for (k, v) in attrs.items() if callable(v) is False)
+    return dict((k, v) for (k, v) in attrs.items() if not callable(v))
