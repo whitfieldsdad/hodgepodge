@@ -89,7 +89,6 @@ def download_file(
         session: Optional[_Session] = None,
         include_file_hashes: bool = INCLUDE_FILE_HASHES_BY_DEFAULT) -> Optional[Hashes]:
 
-    hodgepodge.files.mkdir(path)
     with open(path, 'wb') as fp:
         session = session or Session()
         response = session.get(url)
