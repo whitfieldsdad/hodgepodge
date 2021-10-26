@@ -5,7 +5,7 @@ with open("README.md", "r", encoding="utf-8") as fh:
 
 setup(
     name='hodgepodge',
-    version='2.1.2',
+    version='2.2.0',
     author='Tyler Fisher',
     author_email='tylerfisher@tylerfisher.ca',
     description="A hodgepodge of helpful code that's hopefully helpful to you.",
