@@ -1,4 +1,5 @@
-from typing import Any, Union, Dict, Iterable, Iterator
+import itertools
+from typing import Any, Union, Dict, Iterable, Iterator, Set, Optional, Tuple
 
 import hodgepodge.serialization
 import collections
@@ -6,6 +7,27 @@ import dacite
 import dataclasses
 import distutils.util
 import json
+
+
+def iterate_in_chunks(iterable: Iterable[Any], chunk_size: int) -> Iterator[Tuple]:
+    it = iter(iterable)
+    while True:
+        chunk = tuple(itertools.islice(it, chunk_size))
+        if not chunk:
+            return
+        yield chunk
+
+
+def get_dotted_dict_keys(data: dict, parent: Optional[str] = None) -> Set[str]:
+    keys = set()
+    for key, value in data.items():
+        if parent:
+            key = '{}.{}'.format(parent, key)
+        keys.add(key)
+
+        if isinstance(value, dict):
+            keys |= get_dotted_dict_keys(value, parent=key)
+    return keys
 
 
 def filter_dict(data: dict, keys: Iterable[str]) -> dict:

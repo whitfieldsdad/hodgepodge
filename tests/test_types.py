@@ -14,6 +14,27 @@ class IterableClass:
 
 
 class TypeTestCases(unittest.TestCase):
+    def test_get_dotted_dict_keys(self):
+        data = {
+            'id': 1,
+            'name': 'Bob',
+            'skills': [
+                'magic'
+            ],
+            'favourite': {
+                'sandwich': {
+                    'toppings': [
+                        'mayo', 'tomato', 'bacon', 'lettuce'
+                    ]
+                },
+                'fruit': 'lemon',
+            }
+        }
+        expected = {
+            'id', 'name', 'skills', 'favourite', 'favourite.sandwich', 'favourite.sandwich.toppings', 'favourite.fruit'}
+        result = hodgepodge.types.get_dotted_dict_keys(data)
+        self.assertEqual(expected, result)
+
     def test_filter_dict(self):
         data = {
             'id': 'a4eaaf05-da54-4e87-bf84-ea4c17bd88f3',
