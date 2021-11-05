@@ -1,3 +1,5 @@
+from dataclasses import dataclass, field
+
 import hodgepodge.types
 import hodgepodge.hashing
 import unittest
@@ -5,6 +7,12 @@ import unittest
 
 class Class:
     pass
+
+
+@dataclass(frozen=True)
+class Dataclass:
+    id: int
+    color: str = field(default="blue", init=False)
 
 
 class IterableClass:
@@ -31,8 +39,27 @@ class TypeTestCases(unittest.TestCase):
             }
         }
         expected = {
-            'id', 'name', 'skills', 'favourite', 'favourite.sandwich', 'favourite.sandwich.toppings', 'favourite.fruit'}
+            'id', 'name', 'skills', 'favourite', 'favourite.sandwich', 'favourite.sandwich.toppings', 'favourite.fruit'
+        }
         result = hodgepodge.types.get_dotted_dict_keys(data)
+        self.assertEqual(expected, result)
+
+    def test_dict_to_dataclass_with_no_init_field(self):
+        data = {
+            'id': 123
+        }
+        result = hodgepodge.types.dict_to_dataclass(data, Dataclass)
+        self.assertIsInstance(result, Dataclass)
+        self.assertEqual(result.id, data['id'])
+        self.assertEqual(result.color, 'blue')
+
+    def test_dataclass_to_dict(self):
+        data = Dataclass(id=123)
+        result = hodgepodge.types.dataclass_to_dict(data)
+        expected = {
+            'id': 123,
+            'color': 'blue'
+        }
         self.assertEqual(expected, result)
 
     def test_filter_dict(self):

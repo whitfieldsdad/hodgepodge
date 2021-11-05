@@ -1,9 +1,8 @@
-import itertools
 from typing import Any, Union, Dict, Iterable, Iterator, Set, Optional, Tuple
 
+import itertools
 import hodgepodge.serialization
 import collections
-import dacite
 import dataclasses
 import distutils.util
 import json
@@ -113,24 +112,13 @@ def dataclass_to_dict(data: Any, remove_empty_values: bool = False, preserve_ord
     return new
 
 
-def dict_to_dataclass(data: Any, data_class: Any, ignore_extra_keys: bool = True) -> Any:
+def dict_to_dataclass(data: Any, data_class: Any) -> Any:
     non_init_fields = frozenset((f.name for f in dataclasses.fields(data_class) if f.init is False))
     if non_init_fields:
-        for k, v in data.items():
-            if k in non_init_fields:
+        for k in non_init_fields:
+            if k in data:
                 del data[k]
-
-    if ignore_extra_keys:
-        config = dacite.Config(strict=False)
-    else:
-        config = dacite.Config(strict=True)
-
-    try:
-        data = dacite.from_dict(data=data, data_class=data_class, config=config)
-    except dacite.exceptions.UnexpectedDataError as exception:
-        raise ValueError(exception)
-    else:
-        return data
+    return data_class(**data)
 
 
 def dict_to_json(data: dict, indent: Union[int, None] = None, sort_keys: bool = True,
