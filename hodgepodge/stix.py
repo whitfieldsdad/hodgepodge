@@ -41,12 +41,8 @@ def get_filesystem_data_source(path: str, allow_custom: bool = True) -> Union[st
 
 
 def _get_data_source_from_file(path: str, allow_custom: bool = True) -> stix2.MemorySource:
-    with open(path, 'rb') as fp:
-        data = fp.read()
-        try:
-            data = hodgepodge.compression.decompress(data)
-        except CompressionError as e:
-            logger.debug("Data is either not compressed, or decompression failed: %s", e)
+    with open(path, 'r') as fp:
+        data = json.load(fp)
         return stix2.MemorySource(data, allow_custom=allow_custom)
 
 
