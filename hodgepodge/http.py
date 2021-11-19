@@ -1,7 +1,7 @@
 from dataclasses import dataclass
 from typing import Iterable, Optional
 from requests import Session as _Session
-from requests.adapters import HTTPAdapter
+from requests.adapters import HTTPAdapter, BaseAdapter
 from urllib3.util.retry import Retry
 from hodgepodge.hashing import Hashes
 from hodgepodge.files import INCLUDE_FILE_HASHES_BY_DEFAULT
@@ -29,9 +29,9 @@ def configure_http_request_logging(log_level=logging.INFO):
 
 class Session(_Session):
     def request(self, method, url, *args, **kwargs):
-        logger.info("[   ] HTTP %s: %s", method, url)
-        response = super(Session, self).request(*args, **kwargs)
-        logger.info("[%d] HTTP %s: %s", response.status_code, method, url)
+        logger.info("Sending HTTP %s request: %s", method, url)
+        response = super(Session, self).request(method=method, url=url, *args, **kwargs)
+        logger.info("Received HTTP %s response: %s (status code: %d)", method, url, response.status_code)
         return response
 
 
@@ -71,12 +71,12 @@ def get_automatic_retry_policy(max_retries_on_connection_errors: int = DEFAULT_M
     )
 
 
-def attach_session_policies(session: _Session, policies: Iterable[HttpRequestPolicy], prefixes: Iterable[str] = None):
+def attach_session_policies(session: Session, policies: Iterable[HttpRequestPolicy], prefixes: Iterable[str] = None):
     adapters = [policy.to_http_adapter() for policy in policies]
     attach_session_adapters(session=session, adapters=adapters, prefixes=prefixes)
 
 
-def attach_session_adapters(session: _Session, adapters: Iterable[HTTPAdapter], prefixes: Iterable[str] = None):
+def attach_session_adapters(session: Session, adapters: Iterable[BaseAdapter], prefixes: Iterable[str] = None):
     prefixes = prefixes or DEFAULT_PREFIXES
     for prefix in prefixes:
         for adapter in adapters:
