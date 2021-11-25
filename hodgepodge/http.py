@@ -28,9 +28,11 @@ def configure_http_request_logging(log_level=logging.INFO):
 
 
 class Session(_Session):
-    def request(self, method, url, *args, **kwargs):
+    def send(self, request, **kwargs):
+        url = request.url
+        method = request.method
         logger.info("Sending HTTP %s request: %s", method, url)
-        response = super(Session, self).request(method=method, url=url, *args, **kwargs)
+        response = super(Session, self).send(request=request, **kwargs)
         logger.info("Received HTTP %s response: %s (status code: %d)", method, url, response.status_code)
         return response
 
