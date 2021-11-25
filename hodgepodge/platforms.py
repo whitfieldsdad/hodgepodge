@@ -8,6 +8,10 @@ import struct
 WINDOWS = 'windows'
 LINUX = 'linux'
 DARWIN = 'darwin'
+BSD = 'bsd'
+SOLARIS = 'solaris'
+ANDROID = 'android'
+OTHER = 'other'
 
 OS_TYPE = platform.system()
 OS_VERSION = platform.version()
@@ -37,18 +41,36 @@ def is_darwin() -> bool:
     return OS_TYPE.lower() == DARWIN
 
 
-def parse_os_type(os_type: str) -> Optional[str]:
-    os_type = str.lower(os_type)
-    if hodgepodge.pattern_matching.str_matches_glob(os_type, patterns=[
-        '*microsoft*', '*windows*', '*cygwin*', '*mingw*', '*msys*', '*dos*'
-    ]):
-        return WINDOWS
-    elif hodgepodge.pattern_matching.str_matches_glob(os_type, patterns=[
-        '*linux*', '*ubuntu*', '*rhel*', '*red*hat*', '*centos*', '*debian*', '*gentoo*', '*opensuse*', '*sles*',
-    ]):
-        return LINUX
-    elif hodgepodge.pattern_matching.str_matches_glob(os_type, patterns=[
-        '*darwin*', '*mac*os*', '*os*x*'
-    ]):
-        return DARWIN
+def parse_os_type(os_type: Optional[str]) -> Optional[str]:
+    if os_type:
+
+        #: Windows.
+        if hodgepodge.pattern_matching.str_matches_glob(os_type, patterns=[
+            '*microsoft*', '*windows*', '*cygwin*', '*mingw*', '*msys*', '*dos*'
+        ]):
+            os_type = WINDOWS
+
+        #: Linux.
+        elif hodgepodge.pattern_matching.str_matches_glob(os_type, patterns=[
+            '*linux*', '*ubuntu*', '*rhel*', '*red*hat*', '*centos*', '*debian*', '*gentoo*', '*opensuse*', '*sles*',
+        ]):
+            os_type = LINUX
+
+        #: macOS.
+        elif hodgepodge.pattern_matching.str_matches_glob(os_type, patterns=[
+            '*darwin*', '*mac*os*', '*os*x*'
+        ]):
+            os_type = DARWIN
+
+        #: BSD.
+        elif hodgepodge.pattern_matching.str_matches_glob(os_type, patterns=['*FreeBSD*', '*OpenBSD*', '*pfsense*']):
+            os_type = BSD
+
+        #: Solaris.
+        elif hodgepodge.pattern_matching.str_matches_glob(os_type, patterns='*solaris*'):
+            os_type = SOLARIS
+
+        #: Anything else.
+        else:
+            os_type = OTHER
     return os_type
