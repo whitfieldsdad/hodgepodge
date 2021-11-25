@@ -1,4 +1,6 @@
-# hodgepodge  ![PyPI - Python Version](https://img.shields.io/pypi/pyversions/hodgepodge) ![PyPI - Wheel](https://img.shields.io/pypi/wheel/hodgepodge) ![PyPI - Downloads](https://img.shields.io/pypi/dm/hodgepodge)
+# hodgepodge  
+
+[![](https://img.shields.io/pypi/pyversions/hodgepodge)](https://pypi.org/project/hodgepodge/) [![](https://img.shields.io/pypi/wheel/hodgepodge)](https://pypi.org/project/hodgepodge/#files) [![](https://img.shields.io/pypi/l/hodgepodge)](https://github.com/whitfieldsdad/hodgepodge/blob/main/LICENSE.md)
 
 > _A **hodgepodge** of hopefully helpful helper code_
 
