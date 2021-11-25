@@ -98,7 +98,7 @@ def in_range(
         minimum: Union[str, int, float, datetime.datetime, datetime.date, arrow.Arrow, None] = None,
         maximum: Union[str, int, float, datetime.datetime, datetime.date, arrow.Arrow, None] = None) -> bool:
 
-    timestamp, minimum, maximum = map(to_datetime, (timestamp, minimum, maximum))
+    timestamp, minimum, maximum = map(to_epoch_time, (timestamp, minimum, maximum))
     if minimum and timestamp < minimum:
         return False
     if maximum and timestamp > maximum:
