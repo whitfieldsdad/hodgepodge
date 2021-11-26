@@ -6,6 +6,10 @@ import arrow
 import dateutil.parser
 import time
 
+HOUR = 'hour'
+DAY = 'day'
+MONTH = 'month'
+
 
 @dataclass()
 class Duration:
@@ -104,3 +108,15 @@ def in_range(
     if maximum and timestamp > maximum:
         return False
     return True
+
+
+def round_datetime(timestamp: datetime.datetime, granularity: str) -> datetime.datetime:
+    if granularity == HOUR:
+        timestamp = timestamp.replace(microsecond=0, second=0, minute=0)
+    elif granularity == DAY:
+        timestamp = timestamp.replace(microsecond=0, second=0, minute=0, hour=0)
+    elif granularity == MONTH:
+        timestamp = timestamp.replace(microsecond=0, second=0, minute=0, hour=0, day=1)
+    else:
+        raise ValueError("Unsupported granularity: '{}' (supported: {})".format(granularity, [HOUR, DAY, MONTH]))
+    return timestamp
