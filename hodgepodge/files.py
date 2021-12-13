@@ -12,7 +12,6 @@ import hodgepodge.time
 import datetime
 import shutil
 import glob
-import dawg
 import os
 
 FOLLOW_SYMLINKS_BY_DEFAULT = False
@@ -183,7 +182,7 @@ class FileSearch:
             yield path
 
     def _search(self) -> Iterator[Tuple[str, os.stat_result]]:
-        roots = get_paths_without_overlap(self.roots)
+        roots = get_paths(self.roots)
         ignored_paths = get_paths(self.ignored_paths)
 
         i = 0
@@ -296,10 +295,7 @@ def expand(path: str) -> str:
     return path
 
 
-def get_paths(paths: Iterable[str], allow_overlap: bool = True) -> List[str]:
-    if allow_overlap is False:
-        return get_paths_without_overlap(paths)
-
+def get_paths(paths: Iterable[str]) -> List[str]:
     results = set()
     for path in (paths or []):
         path = get_real_path(path)
@@ -308,22 +304,6 @@ def get_paths(paths: Iterable[str], allow_overlap: bool = True) -> List[str]:
         else:
             results.add(path)
     return sorted(results)
-
-
-def get_paths_without_overlap(paths: Iterable[str]) -> List[str]:
-    paths = get_paths(paths)
-    if len(paths) < 2:
-        return paths
-
-    keys_to_paths = dict((os.path.join(path, ''), path) for path in paths)
-    graph = dawg.CompletionDAWG(keys_to_paths.keys())
-
-    roots = set()
-    for key, path in keys_to_paths.items():
-        prefixes = graph.prefixes(key)
-        if len(prefixes) == 1:
-            roots.add(path)
-    return list(roots)
 
 
 def in_directory(path: str, directories: Iterable[str]) -> bool:

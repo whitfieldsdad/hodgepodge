@@ -116,23 +116,6 @@ class FileTestCases(TestCase):
             result = hodgepodge.files.get_paths(paths)
             self.assertSetEqual(set(expected), set(result))
 
-    def test_get_paths_without_overlap(self):
-        root = '/'
-        real_root = hodgepodge.files.get_real_path(root)
-
-        home = '$HOME'
-        real_home = hodgepodge.files.get_real_path(home)
-
-        for paths, expected in (
-            ([home], [real_home]),
-            ([real_home], [real_home]),
-            ([home, real_home], [real_home]),
-            ([home, root], [real_root]),
-            ([home, root, real_root], [real_root])
-        ):
-            result = hodgepodge.files.get_paths_without_overlap(paths)
-            self.assertSetEqual(set(expected), set(result))
-
     def test_search_with_max_search_results(self):
         tmp_dir = tempfile.mkdtemp(dir=self.tmp_dir)
 
@@ -146,6 +129,7 @@ class FileTestCases(TestCase):
     def test_search_with_min_file_size(self):
         sz = 128
         _, tmp = tempfile.mkstemp(dir=self.tmp_dir)
+        tmp = hodgepodge.files.get_real_path(tmp)
         with open(tmp, 'wb') as fp:
             fp.write(os.urandom(sz))
 
@@ -158,6 +142,7 @@ class FileTestCases(TestCase):
     def test_search_with_max_file_size(self):
         sz = 128
         _, tmp = tempfile.mkstemp(dir=self.tmp_dir)
+        tmp = hodgepodge.files.get_real_path(tmp)
         with open(tmp, 'wb') as fp:
             fp.write(os.urandom(sz))
 
@@ -173,14 +158,9 @@ class FileTestCases(TestCase):
         paths = {f.path for f in FileSearch(roots=[tmp])}
         self.assertTrue(all(hodgepodge.files.is_absolute_path(path) for path in paths))
 
-    def test_search_with_relative_paths(self):
-        _, tmp = tempfile.mkstemp(dir=self.tmp_dir)
-
-        paths = {f.path for f in FileSearch(roots=[os.path.relpath(os.getcwd(), tmp)])}
-        self.assertTrue(all(hodgepodge.files.is_relative_path(path) for path in paths))
-
     def test_search_with_regular_file(self):
         _, tmp = tempfile.mkstemp(dir=self.tmp_dir)
+        tmp = hodgepodge.files.get_real_path(tmp)
 
         expected = {tmp}
         result = {f.path for f in FileSearch(roots=[tmp])}
@@ -189,6 +169,8 @@ class FileTestCases(TestCase):
     def test_search_with_directory(self):
         tmp_dir = tempfile.mkdtemp(dir=self.tmp_dir)
         _, tmp = tempfile.mkstemp(dir=tmp_dir)
+
+        tmp, tmp_dir = map(hodgepodge.files.get_real_path, (tmp, tmp_dir))
 
         expected = {
             tmp_dir,
