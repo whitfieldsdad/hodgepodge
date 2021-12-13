@@ -1,3 +1,5 @@
+from typing import Union
+
 from hodgepodge.error import CompressionError
 
 import hodgepodge.types
@@ -7,7 +9,9 @@ GZIP = zlib.MAX_WBITS | 16
 AUTO_DETECT_COMPRESSION_TYPE = zlib.MAX_WBITS | 32
 
 
-def compress(data: bytes) -> bytes:
+def compress(data: Union[str, bytes]) -> bytes:
+    if isinstance(data, str):
+        data = hodgepodge.types.str_to_bytes(data)
     return compress_gzip(data)
 
 
