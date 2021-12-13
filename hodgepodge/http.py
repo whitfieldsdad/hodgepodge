@@ -1,5 +1,5 @@
-from dataclasses import dataclass
-from typing import Iterable, Optional
+from dataclasses import dataclass, field
+from typing import Iterable, Optional, List
 from requests import Session as _Session
 from requests.adapters import HTTPAdapter, BaseAdapter
 from urllib3.util.retry import Retry
@@ -11,7 +11,6 @@ import hodgepodge.files
 import hodgepodge.logging
 import logging
 import shutil
-
 
 logger = logging.getLogger(__name__)
 
@@ -49,6 +48,7 @@ class AutomaticRetryPolicy(HttpRequestPolicy):
     max_retries_on_read_errors: int = DEFAULT_MAX_RETRIES_ON_READ_ERRORS
     max_retries_on_redirects: int = DEFAULT_MAX_RETRIES_ON_REDIRECT
     backoff_factor: float = DEFAULT_BACKOFF_FACTOR
+    force_retry_on: List[int] = field(default_factory=lambda: [502, 503, 504])
 
     def to_http_adapter(self) -> HTTPAdapter:
         return HTTPAdapter(
@@ -56,7 +56,8 @@ class AutomaticRetryPolicy(HttpRequestPolicy):
                 connect=self.max_retries_on_connection_errors,
                 read=self.max_retries_on_read_errors,
                 redirect=self.max_retries_on_redirects,
-                backoff_factor=self.backoff_factor
+                backoff_factor=self.backoff_factor,
+                status_forcelist=self.force_retry_on,
             )
         )
 
