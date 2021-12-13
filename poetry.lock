@@ -87,14 +87,6 @@ toml = {version = "*", optional = true, markers = "extra == \"toml\""}
 toml = ["toml"]
 
 [[package]]
-name = "dawg"
-version = "0.8.0"
-description = "Fast and memory efficient DAWG (DAFSA) for Python"
-category = "main"
-optional = false
-python-versions = "*"
-
-[[package]]
 name = "idna"
 version = "2.8"
 description = "Internationalized Domain Names in Applications (IDNA)"
@@ -340,7 +332,7 @@ testing = ["pytest (>=4.6)", "pytest-checkdocs (>=2.4)", "pytest-flake8", "pytes
 [metadata]
 lock-version = "1.1"
 python-versions = ">=3.6.0,<4"
-content-hash = "6425c003b714edcfb77a76a4ca0ffc54c214f9a4ba6e724b76aee9ffc4613f66"
+content-hash = "05b7cfc369f83ad346c8d5b337744678b46524e9a14054c0c5f2cc598a881d77"
 
 [metadata.files]
 antlr4-python3-runtime = [
@@ -427,13 +419,6 @@ coverage = [
     {file = "coverage-5.5-pp36-none-any.whl", hash = "sha256:f030f8873312a16414c0d8e1a1ddff2d3235655a2174e3648b4fa66b3f2f1079"},
     {file = "coverage-5.5-pp37-none-any.whl", hash = "sha256:2a3859cb82dcbda1cfd3e6f71c27081d18aa251d20a17d87d26d4cd216fb0af4"},
     {file = "coverage-5.5.tar.gz", hash = "sha256:ebe78fe9a0e874362175b02371bdfbee64d8edc42a044253ddf4ee7d3c15212c"},
-]
-dawg = [
-    {file = "DAWG-0.8.0-cp35-cp35m-macosx_10_14_x86_64.whl", hash = "sha256:7aecc4c89243edaf1efe7a4d769d993a7cd9307a8a04f48e07c4fc7c44bdd38f"},
-    {file = "DAWG-0.8.0-cp36-cp36m-macosx_10_14_x86_64.whl", hash = "sha256:83ce4a73f7632b0ed31af16c2750533ecbed347bad1148a52f6436e348b5b7ac"},
-    {file = "DAWG-0.8.0-cp37-cp37m-macosx_10_14_x86_64.whl", hash = "sha256:fb90b799fb7d6d728531840529c812a9ee17736da71e8a596ede8bfd6c62bf36"},
-    {file = "DAWG-0.8.0-cp38-cp38-macosx_10_14_x86_64.whl", hash = "sha256:73760ad1272b1b47997f1a768b8f3bf547c92475bcd62185f4ab7e1bc691964e"},
-    {file = "DAWG-0.8.0.tar.gz", hash = "sha256:34881e06278d4a54cf0b402c0c8b587bef0caa78f0eee595adc7a2aa530e48ce"},
 ]
 idna = [
     {file = "idna-2.8-py2.py3-none-any.whl", hash = "sha256:ea8b7f6188e6fa117537c3df7da9fc686d485087abf6ac197f9c46432f7e4a3c"},
