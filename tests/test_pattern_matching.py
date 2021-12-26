@@ -4,7 +4,7 @@ import hodgepodge.pattern_matching
 
 
 class PatternMatchingTestCases(TestCase):
-    def test_str_matches_glob(self):
+    def test_matches_with_one_pattern(self):
         for values, patterns, case_sensitive, expected in (
             ('hello world', 'hello world', False, True),
             ('hello world', 'hello*', False, True),
@@ -16,14 +16,14 @@ class PatternMatchingTestCases(TestCase):
             (None, '*', False, False),
         ):
             with self.subTest(values=values, patterns=patterns, case_sensitive=case_sensitive, expected=expected):
-                result = hodgepodge.pattern_matching.str_matches_glob(
+                result = hodgepodge.pattern_matching.matches(
                     values=values,
                     patterns=patterns,
                     case_sensitive=case_sensitive,
                 )
                 self.assertEqual(expected, result)
 
-    def test_str_matches_any_glob(self):
+    def test_matches_with_multiple_patterns(self):
         for values, patterns, case_sensitive, expected in (
             ('hello world', ['hello world'], False, True),
             ('hello world', ['hello*'], False, True),
@@ -35,7 +35,7 @@ class PatternMatchingTestCases(TestCase):
             (None, '*', False, False),
         ):
             with self.subTest(values=values, patterns=patterns, case_sensitive=case_sensitive, expected=expected):
-                result = hodgepodge.pattern_matching.str_matches_glob(
+                result = hodgepodge.pattern_matching.matches(
                     values=values,
                     patterns=patterns,
                     case_sensitive=case_sensitive,
