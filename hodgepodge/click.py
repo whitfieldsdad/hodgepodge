@@ -1,9 +1,6 @@
-from typing import List, Iterable, Union
+from typing import List
 
-import hodgepodge.time
-import hodgepodge.types
 import click
-import json
 
 
 def str_to_strs(data: str) -> List[str]:

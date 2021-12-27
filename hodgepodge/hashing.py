@@ -3,6 +3,7 @@ from dataclasses import dataclass
 
 import hashlib
 import hodgepodge.types
+from hodgepodge.serialization import Serializable
 
 DEFAULT_FILE_IO_BLOCK_SIZE = 8192
 
@@ -15,7 +16,7 @@ HASH_ALGORITHMS = [MD5, SHA1, SHA256, SHA512]
 
 
 @dataclass(frozen=True)
-class Hashes:
+class Hashes(Serializable):
     md5: Optional[str]
     sha1: Optional[str]
     sha256: Optional[str]

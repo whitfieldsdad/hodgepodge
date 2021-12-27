@@ -1,7 +1,7 @@
 from typing import Any, Union, Dict, Iterable, Iterator, Set, Optional, Tuple
+from hodgepodge.serialization import JSONEncoder
 
 import itertools
-import hodgepodge.serialization
 import collections
 import dataclasses
 import distutils.util
@@ -102,11 +102,11 @@ def dataclass_to_json(data: Any, remove_empty_values: bool = False, sort_keys: b
 
 def dataclass_to_dict(data: Any, remove_empty_values: bool = False, preserve_order: bool = False) -> Dict[Any, Any]:
     if preserve_order:
-        dict_factory = collections.OrderedDict
+        factory = collections.OrderedDict
     else:
-        dict_factory = dict
+        factory = dict
 
-    new = dataclasses.asdict(data, dict_factory=dict_factory)
+    new = factory((field.name, getattr(data, field.name)) for field in dataclasses.fields(data))
     if remove_empty_values:
         new = remove_empty_values_from_dict(new)
     return new
@@ -126,7 +126,7 @@ def dict_to_json(data: dict, indent: Union[int, None] = None, sort_keys: bool = 
 
     if remove_empty_values:
         data = remove_empty_values_from_dict(data)
-    return json.dumps(data, indent=indent, sort_keys=sort_keys, default=hodgepodge.serialization.custom_json_serializer)
+    return json.dumps(data, indent=indent, sort_keys=sort_keys, cls=JSONEncoder)
 
 
 def to_json(data: Any, indent: Union[int, None] = None, sort_keys: bool = True) -> str:
@@ -139,9 +139,9 @@ def json_to_dict(data: str) -> Dict[Any, Any]:
     return json.loads(data)
 
 
-def json_to_dataclass(data: str, data_class: Any, ignore_extra_keys: bool = True) -> Any:
+def json_to_dataclass(data: str, data_class: Any) -> Any:
     data = json_to_dict(data)
-    return dict_to_dataclass(data=data, data_class=data_class, ignore_extra_keys=ignore_extra_keys)
+    return dict_to_dataclass(data=data, data_class=data_class)
 
 
 def remove_empty_values_from_dict(data: dict) -> Dict[Any, Any]:

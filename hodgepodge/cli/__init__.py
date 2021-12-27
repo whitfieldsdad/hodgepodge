@@ -1,5 +1,6 @@
-from hodgepodge.cli.command_groups.files import files
 from hodgepodge.cli.command_groups.file import file
+from hodgepodge.cli.command_groups.commands import commands
+from hodgepodge.cli.command_groups.processes import processes
 
 import click
 
@@ -12,7 +13,8 @@ def cli(ctx):
 
 COMMAND_GROUPS = [
     file,
-    files,
+    commands,
+    processes,
 ]
 for command_group in COMMAND_GROUPS:
     cli.add_command(command_group)

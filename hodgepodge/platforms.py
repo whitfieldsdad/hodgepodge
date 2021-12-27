@@ -1,9 +1,12 @@
+from dataclasses import dataclass
 from typing import Optional
 
 import hodgepodge
 import hodgepodge.pattern_matching
 import platform
 import struct
+
+from hodgepodge.serialization import Serializable
 
 WINDOWS = 'windows'
 LINUX = 'linux'
@@ -15,6 +18,22 @@ OTHER = 'other'
 
 OS_TYPE = platform.system()
 OS_VERSION = platform.version()
+OS_BITNESS = 8 * struct.calcsize("P")
+
+
+@dataclass(frozen=True)
+class Platform(Serializable):
+    os_type: str
+    os_version: str
+    os_bitness: int
+
+
+def get_platform() -> Platform:
+    return Platform(
+        os_type=OS_TYPE,
+        os_version=OS_VERSION,
+        os_bitness=OS_BITNESS,
+    )
 
 
 def get_os_type() -> str:
@@ -26,7 +45,7 @@ def get_os_version() -> str:
 
 
 def get_os_bitness() -> int:
-    return 8 * struct.calcsize("P")
+    return OS_BITNESS
 
 
 def is_windows() -> bool:

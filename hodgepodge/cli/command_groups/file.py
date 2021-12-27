@@ -12,22 +12,16 @@ logger = logging.getLogger(__name__)
 
 
 @click.group()
-@click.argument('path', type=click.Path(exists=True))
-@click.pass_context
-def file(ctx: click.Context, path: str):
-    """
-    Learn more about a single file_search.
-    """
-    ctx.ensure_object(dict)
-    ctx.obj['path'] = hodgepodge.files.get_real_path(path)
+def file():
+    pass
 
 
 @file.command()
-@click.pass_context
-def get_metadata(ctx: click.Context):
-    path = ctx.obj['path']
+@click.argument('path', type=click.Path(exists=True))
+@click.option('--include-file-hashes/--exclude-file-hashes', default=True)
+def get_metadata(path: str, include_file_hashes: bool):
     try:
-        info = hodgepodge.files.get_metadata(path)
+        info = hodgepodge.files.get_metadata(path, include_file_hashes=include_file_hashes)
     except FileNotFoundError as e:
         logger.error(e)
     else:
@@ -36,10 +30,9 @@ def get_metadata(ctx: click.Context):
 
 
 @file.command()
+@click.argument('path', type=click.Path(exists=True))
 @click.option('--easy-to-read/--hard-to-read', help="Display file sizes as strings rather than integers", default=True)
-@click.pass_context
-def get_size(ctx: click.Context, easy_to_read: bool):
-    path = ctx.obj['path']
+def get_size(path: str, easy_to_read: bool):
     try:
         size = hodgepodge.files.get_size(path)
     except FileNotFoundError as e:

@@ -4,11 +4,14 @@ from dataclasses import dataclass
 from typing import Optional, Iterable, List, Iterator, Union, Tuple
 from hodgepodge.hashing import Hashes
 from hodgepodge.pattern_matching import STRING_COMPARISON_IS_CASE_SENSITIVE_BY_DEFAULT
+from hodgepodge.serialization import Serializable
+from hodgepodge.users import User
 
 import stat as _stat
 import hodgepodge.hashing
 import hodgepodge.math
 import hodgepodge.time
+import hodgepodge.users
 import datetime
 import shutil
 import glob
@@ -16,11 +19,12 @@ import os
 
 FOLLOW_SYMLINKS_BY_DEFAULT = False
 FOLLOW_MOUNT_POINTS_BY_DEFAULT = True
+INCLUDE_FILE_OWNERS_BY_DEFAULT = False
 INCLUDE_FILE_HASHES_BY_DEFAULT = False
 
 
 @dataclass(frozen=True)
-class MACTimestamps:
+class MACTimestamps(Serializable):
     modify_time: datetime.datetime
     access_time: datetime.datetime
     change_time: datetime.datetime
@@ -37,7 +41,7 @@ class MACTimestamps:
 
 
 @dataclass(frozen=True)
-class StatResult:
+class StatResult(Serializable):
     st_mode: int
     st_ino: int
     st_dev: int
@@ -45,9 +49,9 @@ class StatResult:
     st_uid: int
     st_gid: int
     st_size: int
-    st_atime: float
-    st_mtime: float
-    st_ctime: float
+    st_atime: datetime.datetime
+    st_mtime: datetime.datetime
+    st_ctime: datetime.datetime
 
     def get_mac_timestamps(self) -> MACTimestamps:
         return MACTimestamps(
@@ -57,14 +61,18 @@ class StatResult:
         )
 
 
-@dataclass()
-class File:
+@dataclass(frozen=True)
+class File(Serializable):
     path: str
-    real_path: Optional[str]
-    size: int
-    mac_timestamps: MACTimestamps
-    stat_result: Optional[StatResult]
-    hashes: Optional[Hashes]
+    real_path: Optional[str] = None
+    size: Optional[int] = None
+    mac_timestamps: Optional[MACTimestamps] = None
+    stat_result: Optional[StatResult] = None
+    hashes: Optional[Hashes] = None
+
+
+def get_owner(path: str) -> Optional[User]:
+    return hodgepodge.users.get_user(user_id=stat(path).st_uid)
 
 
 def get_metadata(
@@ -72,9 +80,9 @@ def get_metadata(
         follow_symlinks: bool = FOLLOW_SYMLINKS_BY_DEFAULT,
         include_file_hashes: bool = INCLUDE_FILE_HASHES_BY_DEFAULT) -> File:
 
-    path = get_absolute_path(path)
-    real_path = get_real_path(path)
-    stat_result = stat(path, follow_symlinks=follow_symlinks)
+    absolute_path = get_absolute_path(path)
+    real_path = get_real_path(absolute_path)
+    stat_result = stat(real_path, follow_symlinks=follow_symlinks)
 
     hashes = None
     if include_file_hashes and _stat.S_ISREG(stat_result.st_mode):
@@ -83,7 +91,7 @@ def get_metadata(
     modify_time, access_time, change_time = stat_result.get_mac_timestamps()
 
     return File(
-        path=path,
+        path=absolute_path,
         real_path=real_path,
         hashes=hashes,
         size=stat_result.st_size,
@@ -115,9 +123,9 @@ def parse_stat_result(stat_result: os.stat_result) -> StatResult:
         st_uid=stat_result.st_uid,
         st_gid=stat_result.st_gid,
         st_size=stat_result.st_size,
-        st_atime=stat_result.st_atime,
-        st_mtime=stat_result.st_mtime,
-        st_ctime=stat_result.st_ctime,
+        st_atime=hodgepodge.time.to_datetime(stat_result.st_atime),
+        st_mtime=hodgepodge.time.to_datetime(stat_result.st_mtime),
+        st_ctime=hodgepodge.time.to_datetime(stat_result.st_ctime),
     )
 
 
@@ -125,47 +133,34 @@ def get_size(path: str) -> int:
     return stat(path).st_size
 
 
-class FileSearch:
-    def __init__(
-            self,
-            roots: Optional[List[str]] = None,
-            ignored_paths: Optional[List[str]] = None,
-            filename_patterns: Optional[List[str]] = None,
-            follow_symlinks: Optional[bool] = FOLLOW_SYMLINKS_BY_DEFAULT,
-            follow_mount_points: Optional[bool] = FOLLOW_MOUNT_POINTS_BY_DEFAULT,
-            case_sensitive: Optional[bool] = STRING_COMPARISON_IS_CASE_SENSITIVE_BY_DEFAULT,
-            min_file_size: Optional[int] = None,
-            max_file_size: Optional[int] = None,
-            max_search_depth: Optional[int] = None,
-            max_search_results: Optional[int] = None,
-            include_file_hashes: bool = INCLUDE_FILE_HASHES_BY_DEFAULT):
-
-        self.roots = roots
-        self.ignored_paths = ignored_paths
-        self.filename_patterns = filename_patterns
-        self.follow_symlinks = follow_symlinks
-        self.follow_mount_points = follow_mount_points
-        self.case_sensitive = case_sensitive
-        self.min_file_size = min_file_size
-        self.max_file_size = max_file_size
-        self.max_search_depth = max_search_depth
-        self.max_search_results = max_search_results
-        self.include_file_hashes = include_file_hashes
+@dataclass(frozen=True)
+class FileSearch(Serializable):
+    roots: Optional[List[str]] = None
+    ignored_paths: Optional[List[str]] = None
+    filename_patterns: Optional[List[str]] = None
+    follow_symlinks: Optional[bool] = FOLLOW_SYMLINKS_BY_DEFAULT
+    follow_mount_points: Optional[bool] = FOLLOW_MOUNT_POINTS_BY_DEFAULT
+    case_sensitive: Optional[bool] = STRING_COMPARISON_IS_CASE_SENSITIVE_BY_DEFAULT
+    min_file_size: Optional[int] = None
+    max_file_size: Optional[int] = None
+    max_search_depth: Optional[int] = None
+    max_search_results: Optional[int] = None
+    include_file_hashes: bool = INCLUDE_FILE_HASHES_BY_DEFAULT
 
     def iter_matching_files(self) -> Iterator[File]:
         for path, stat_result in self._search():
-            path = get_absolute_path(path)
-            real_path = get_real_path(path)
-            stat_result = stat(path, follow_symlinks=self.follow_symlinks)
+            absolute_path = get_absolute_path(path)
+            real_path = get_real_path(absolute_path)
+            stat_result = stat(absolute_path, follow_symlinks=self.follow_symlinks)
 
             hashes = None
             if self.include_file_hashes and _stat.S_ISREG(stat_result.st_mode):
-                hashes = hodgepodge.hashing.get_file_hashes(path)
+                hashes = hodgepodge.hashing.get_file_hashes(absolute_path)
 
             modify_time, access_time, change_time = stat_result.get_mac_timestamps()
 
             yield File(
-                path=path,
+                path=absolute_path,
                 real_path=real_path,
                 hashes=hashes,
                 size=stat_result.st_size,
