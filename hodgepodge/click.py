@@ -1,7 +1,5 @@
 from typing import List
 
-import click
-
 
 def str_to_strs(data: str) -> List[str]:
     if not data:
