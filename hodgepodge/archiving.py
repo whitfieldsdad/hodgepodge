@@ -1,4 +1,4 @@
-from typing import Iterable
+from typing import List
 
 import hodgepodge.files
 import zipfile
@@ -10,6 +10,6 @@ def extract_archive(archive_path: str, output_path: str):
         fp.extractall(output_path)
 
 
-def get_archive_filenames(archive_path: str) -> Iterable[str]:
+def get_archive_filenames(archive_path: str) -> List[str]:
     with zipfile.ZipFile(archive_path, 'r') as fp:
         return fp.namelist()
