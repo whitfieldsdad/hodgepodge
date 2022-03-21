@@ -22,7 +22,7 @@ class IterableClass:
 
 
 class TypeTestCases(unittest.TestCase):
-    def test_get_dotted_dict_keys(self):
+    def test_get_nested_keys(self):
         data = {
             'id': 1,
             'name': 'Bob',
@@ -41,7 +41,7 @@ class TypeTestCases(unittest.TestCase):
         expected = {
             'id', 'name', 'skills', 'favourite', 'favourite.sandwich', 'favourite.sandwich.toppings', 'favourite.fruit'
         }
-        result = hodgepodge.types.get_dotted_dict_keys(data)
+        result = hodgepodge.types.get_nested_keys(data)
         self.assertEqual(expected, result)
 
     def test_dict_to_dataclass_with_no_init_field(self):
@@ -60,34 +60,6 @@ class TypeTestCases(unittest.TestCase):
             'id': 123,
             'color': 'blue'
         }
-        self.assertEqual(expected, result)
-
-    def test_filter_dict(self):
-        data = {
-            'id': 'a4eaaf05-da54-4e87-bf84-ea4c17bd88f3',
-            'name': 'Mary Poppins',
-        }
-        keys = ['id']
-        expected = {
-            'id': 'a4eaaf05-da54-4e87-bf84-ea4c17bd88f3'
-        }
-        result = hodgepodge.types.filter_dict(data=data, keys=keys)
-        self.assertEqual(expected, result)
-
-    def test_filter_dict_stream(self):
-        stream = [
-            {
-                'id': 'a4eaaf05-da54-4e87-bf84-ea4c17bd88f3',
-                'name': 'Mary Poppins',
-            }
-        ]
-        keys = ['id']
-        expected = [
-            {
-                'id': 'a4eaaf05-da54-4e87-bf84-ea4c17bd88f3'
-            }
-        ]
-        result = list(hodgepodge.types.filter_dict_stream(stream=stream, keys=keys))
         self.assertEqual(expected, result)
 
     def test_is_iterable(self):

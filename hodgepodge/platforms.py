@@ -6,8 +6,6 @@ import hodgepodge.pattern_matching
 import platform
 import struct
 
-from hodgepodge.serialization import Serializable
-
 WINDOWS = 'windows'
 LINUX = 'linux'
 DARWIN = 'darwin'
@@ -22,7 +20,7 @@ OS_BITNESS = 8 * struct.calcsize("P")
 
 
 @dataclass(frozen=True)
-class Platform(Serializable):
+class Platform:
     os_type: str
     os_version: str
     os_bitness: int

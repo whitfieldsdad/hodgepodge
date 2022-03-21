@@ -4,7 +4,6 @@ from dataclasses import dataclass
 from typing import Optional, Iterable, List, Iterator, Union, Tuple
 from hodgepodge.hashing import Hashes
 from hodgepodge.pattern_matching import STRING_COMPARISON_IS_CASE_SENSITIVE_BY_DEFAULT
-from hodgepodge.serialization import Serializable
 from hodgepodge.users import User
 
 import stat as _stat
@@ -24,7 +23,7 @@ INCLUDE_FILE_HASHES_BY_DEFAULT = False
 
 
 @dataclass(frozen=True)
-class MACTimestamps(Serializable):
+class MACTimestamps:
     modify_time: datetime.datetime
     access_time: datetime.datetime
     change_time: datetime.datetime
@@ -41,7 +40,7 @@ class MACTimestamps(Serializable):
 
 
 @dataclass(frozen=True)
-class StatResult(Serializable):
+class StatResult:
     st_mode: int
     st_ino: int
     st_dev: int
@@ -62,7 +61,7 @@ class StatResult(Serializable):
 
 
 @dataclass(frozen=True)
-class File(Serializable):
+class File:
     path: str
     real_path: Optional[str] = None
     size: Optional[int] = None
@@ -134,7 +133,7 @@ def get_size(path: str) -> int:
 
 
 @dataclass(frozen=True)
-class FileSearch(Serializable):
+class FileSearch:
     roots: Optional[List[str]] = None
     ignored_paths: Optional[List[str]] = None
     filename_patterns: Optional[List[str]] = None

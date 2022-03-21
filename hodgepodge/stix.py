@@ -1,4 +1,3 @@
-from hodgepodge.error import CompressionError
 from stix2.datastore import DataSource, CompositeDataSource
 from typing import List, Union, Optional, Iterator, Tuple, Any, Iterable
 
@@ -79,18 +78,6 @@ def get_object(data_source: DataSource, object_id: str) -> Optional[dict]:
     row = data_source.get(stix_id=object_id)
     if row:
         return stix2_to_dict(row)
-
-
-def get_objects(data_source: DataSource, object_ids: Iterable[str] = None, object_external_ids: Iterable[str] = None,
-                object_types: Iterable[str] = None, object_names: Iterable[str] = None) -> List[dict]:
-
-    return list(iter_objects(
-        data_source=data_source,
-        object_ids=object_ids,
-        object_external_ids=object_external_ids,
-        object_types=object_types,
-        object_names=object_names,
-    ))
 
 
 def iter_objects(data_source: DataSource, object_ids: Iterable[str] = None, object_external_ids: Iterable[str] = None,

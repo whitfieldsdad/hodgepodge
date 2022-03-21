@@ -1,5 +1,6 @@
-import string
 from typing import Optional
+
+import string
 
 
 def parse_mac_address(value: str) -> Optional[str]:

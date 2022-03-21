@@ -1,5 +1,7 @@
 from dataclasses import dataclass, field
 from typing import Iterable, Optional, List
+
+import requests
 from requests import Session as _Session
 from requests.adapters import HTTPAdapter, BaseAdapter
 from urllib3.util.retry import Retry
@@ -30,9 +32,9 @@ class Session(_Session):
     def send(self, request, **kwargs):
         url = request.url
         method = request.method
-        logger.info("Sending HTTP %s request: %s", method, url)
+        logger.debug("Sending HTTP %s request: %s", method, url)
         response = super(Session, self).send(request=request, **kwargs)
-        logger.info("Received HTTP %s response: %s (status code: %d)", method, url, response.status_code)
+        logger.debug("Received HTTP %s response: %s (status code: %d)", method, url, response.status_code)
         return response
 
 

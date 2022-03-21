@@ -1,4 +1,5 @@
 from typing import Any, Union, Dict, Iterable, Iterator, Set, Optional, Tuple
+from hodgepodge.constants import DEFAULT_JSON_INDENT, SORT_JSON_KEYS_BY_DEFAULT
 from hodgepodge.serialization import JSONEncoder
 
 import itertools
@@ -7,43 +8,33 @@ import dataclasses
 import distutils.util
 import json
 
-
-def iterate_in_chunks(iterable: Iterable[Any], chunk_size: int) -> Iterator[Tuple]:
-    it = iter(iterable)
-    while True:
-        chunk = tuple(itertools.islice(it, chunk_size))
-        if not chunk:
-            return
-        yield chunk
+DEFAULT_CHUNK_SIZE = 500
 
 
-def get_dotted_dict_keys(data: dict, parent: Optional[str] = None) -> Set[str]:
-    keys = set()
+def get_nested_keys(data: dict, sep='.') -> Set[str]:
+    return set(_iter_nested_keys(data=data, sep=sep))
+
+
+def _iter_nested_keys(data: dict, parent_key: Optional[str] = None, sep='.') -> Set[str]:
     for key, value in data.items():
-        if parent:
-            key = '{}.{}'.format(parent, key)
-        keys.add(key)
+        if parent_key:
+            key = '{}{}{}'.format(parent_key, sep, key)
+        yield key
 
         if isinstance(value, dict):
-            keys |= get_dotted_dict_keys(value, parent=key)
-    return keys
+            yield from _iter_nested_keys(value, parent_key=key)
 
 
-def filter_dict(data: dict, keys: Iterable[str]) -> dict:
-    if keys:
-        keys = set(keys)
-        data = dict((k, v) for (k, v) in data.items() if k in keys)
-    return data
+def chunk_iter(it: Iterable[Any], n: Optional[int] = DEFAULT_CHUNK_SIZE) -> Iterator[Tuple]:
+    it = iter(it)
+    while True:
+        c = tuple(itertools.islice(it, n))
+        if not c:
+            return
+        yield c
 
 
-def filter_dict_stream(stream: Iterable[dict], keys: Iterable[str]) -> Iterator[dict]:
-    for row in stream:
-        row = filter_dict(data=row, keys=keys)
-        if row:
-            yield row
-
-
-def get_length(data: Any) -> int:
+def get_size(data: Any) -> int:
     if is_iterator(data):
         return sum(1 for _ in data)
     return len(data)
@@ -94,54 +85,49 @@ def bytes_to_str(data: Any, encoding: str = 'utf-8', errors: str = 'surrogateesc
     return data.decode(encoding=encoding, errors=errors)
 
 
-def dataclass_to_json(data: Any, remove_empty_values: bool = False, sort_keys: bool = False,
-                      indent: Union[int, None] = None) -> str:
-    data = dataclass_to_dict(data, remove_empty_values=remove_empty_values)
+def dataclass_to_json(data: Any, sort_keys: bool = False, indent: Union[int, None] = None) -> str:
+    data = dataclass_to_dict(data)
     return dict_to_json(data, indent=indent, sort_keys=sort_keys)
 
 
-def dataclass_to_dict(data: Any, remove_empty_values: bool = False, preserve_order: bool = False) -> Dict[Any, Any]:
+def dataclass_to_dict(data: Any, preserve_order: bool = False) -> Dict[Any, Any]:
     if preserve_order:
         factory = collections.OrderedDict
     else:
         factory = dict
 
     new = factory((field.name, getattr(data, field.name)) for field in dataclasses.fields(data))
-    if remove_empty_values:
-        new = remove_empty_values_from_dict(new)
     return new
 
 
-def dict_to_dataclass(data: Any, data_class: Any) -> Any:
-    non_init_fields = frozenset((f.name for f in dataclasses.fields(data_class) if f.init is False))
+def dict_to_dataclass(data: Any, cls: Any) -> Any:
+    fields = dataclasses.fields(cls)
+    non_init_fields = frozenset((f.name for f in fields if f.init is False))
     if non_init_fields:
         for k in non_init_fields:
             if k in data:
                 del data[k]
-    return data_class(**data)
+
+    fields = {f.name for f in fields}
+    data = dict(((k, v) for (k, v) in data.items() if k in fields))
+    return cls(**data)
 
 
-def dict_to_json(data: dict, indent: Union[int, None] = None, sort_keys: bool = True,
-                 remove_empty_values: bool = False) -> str:
-
-    if remove_empty_values:
-        data = remove_empty_values_from_dict(data)
+def dict_to_json(data: dict, indent: Optional[int] = 4, sort_keys: bool = True) -> str:
     return json.dumps(data, indent=indent, sort_keys=sort_keys, cls=JSONEncoder)
 
 
-def to_json(data: Any, indent: Union[int, None] = None, sort_keys: bool = True) -> str:
-    if isinstance(data, dataclasses.is_dataclass(data)):
-        data = dataclass_to_dict(data)
+def to_json(data: Any, indent: Optional[int] = DEFAULT_JSON_INDENT, sort_keys: bool = SORT_JSON_KEYS_BY_DEFAULT) -> str:
     return dict_to_json(data=data, indent=indent, sort_keys=sort_keys)
 
 
-def json_to_dict(data: str) -> Dict[Any, Any]:
+def json_to_dict(data: str) -> Dict[str, Any]:
     return json.loads(data)
 
 
 def json_to_dataclass(data: str, data_class: Any) -> Any:
     data = json_to_dict(data)
-    return dict_to_dataclass(data=data, data_class=data_class)
+    return dict_to_dataclass(data=data, cls=data_class)
 
 
 def remove_empty_values_from_dict(data: dict) -> Dict[Any, Any]:

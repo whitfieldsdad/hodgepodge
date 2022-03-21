@@ -1,10 +1,6 @@
 from typing import Optional, Iterable, Iterator
 from dataclasses import dataclass
-from hodgepodge.files import File
-from hodgepodge.serialization import Serializable
-from hodgepodge.users import User
 
-import subprocess
 import psutil
 import hodgepodge.pattern_matching
 import hodgepodge.hashing
@@ -13,13 +9,12 @@ import hodgepodge.files
 import hodgepodge.time
 import datetime
 import logging
-import shlex
 
 logger = logging.getLogger(__name__)
 
 
 @dataclass()
-class Process(Serializable):
+class Process:
     pid: int
     ppid: Optional[int] = None
     create_time: Optional[datetime.datetime] = None
@@ -27,28 +22,7 @@ class Process(Serializable):
     command_line: Optional[str] = None
     stdout: Optional[str] = None
     stderr: Optional[str] = None
-
-
-def execute_command(command: str) -> Process:
-    args = shlex.split(command)
-    p = subprocess.Popen(args, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
-    pid = p.pid
-
-    ctx = Process(
-        create_time=datetime.datetime.now(),
-        pid=pid,
-        command_line=' '.join(p.args),
-    )
-    try:
-        ctx = get_process(pid=pid)
-    except psutil.NoSuchProcess:
-        pass
-
-    #: Wait for the process to exit.
-    stdout, stderr = p.communicate()
-    ctx.stdout = hodgepodge.types.bytes_to_str(stdout)
-    ctx.stderr = hodgepodge.types.bytes_to_str(stderr)
-    return ctx
+    exit_code: Optional[int] = None
 
 
 def get_process(pid: int) -> Optional[Process]:

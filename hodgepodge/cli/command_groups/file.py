@@ -13,6 +13,9 @@ logger = logging.getLogger(__name__)
 
 @click.group()
 def file():
+    """
+    Work with individual files.
+    """
     pass
 
 

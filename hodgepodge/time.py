@@ -6,7 +6,6 @@ import arrow
 import dateutil.parser
 import time
 
-
 HOUR = 'hour'
 DAY = 'day'
 MONTH = 'month'
@@ -50,12 +49,12 @@ def current_time_as_epoch_time() -> float:
     return time.time()
 
 
-def to_epoch_time(timestamp: Union[str, int, float, datetime.date, arrow.Arrow, None] = None) -> Optional[float]:
+def to_epoch_time(timestamp: Union[str, int, float, datetime.date, arrow.Arrow, None]) -> Optional[float]:
     if timestamp is not None:
         return to_datetime(timestamp).timestamp()
 
 
-def to_date(timestamp: Union[str, int, float, datetime.date, arrow.Arrow, None] = None) -> Optional[datetime.date]:
+def to_date(timestamp: Union[str, int, float, datetime.date, arrow.Arrow, None]) -> Optional[datetime.date]:
     t = to_datetime(timestamp)
     return t.date()
 
@@ -84,10 +83,12 @@ def to_duration(seconds: Union[int, float, datetime.timedelta]) -> Duration:
     elif not isinstance(seconds, (int, float)):
         raise TypeError("Unsupported types: {}".format(type(seconds).__name__))
 
+    milliseconds = round(seconds % 1, 4)
     days, seconds = divmod(seconds, 24 * 60 * 60)
     minutes, seconds = divmod(seconds, 60)
     hours, minutes = divmod(minutes, 60)
     years, days = divmod(days, 365)
+    seconds += milliseconds
 
     return Duration(
         years=int(years),

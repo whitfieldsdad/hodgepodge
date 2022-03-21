@@ -1,5 +1,4 @@
 from typing import Union
-
 from hodgepodge.error import CompressionError
 
 import hodgepodge.types

@@ -22,11 +22,10 @@ class Stix2TestCases(TestCase):
 
     def test_get_objects_by_name(self):
         data_source = hodgepodge.stix.get_taxii_data_source(url=MITRE_ATTACK_ICS_URL)
-        rows = hodgepodge.stix.get_objects(
+        rows = list(hodgepodge.stix.iter_objects(
             data_source=data_source,
             object_names=['Dragonfly 2.0'],
-        )
-        self.assertIsInstance(rows, list)
+        ))
         self.assertEqual(1, len(rows))
 
         expected = 'intrusion-set--76d59913-1d24-4992-a8ac-05a3eb093f71'
@@ -35,11 +34,10 @@ class Stix2TestCases(TestCase):
 
     def test_get_objects_by_alias(self):
         data_source = hodgepodge.stix.get_taxii_data_source(url=MITRE_ATTACK_ICS_URL)
-        rows = hodgepodge.stix.get_objects(
+        rows = list(hodgepodge.stix.iter_objects(
             data_source=data_source,
             object_names=['OilRig'],
-        )
-        self.assertIsInstance(rows, list)
+        ))
         self.assertEqual(1, len(rows))
 
         expected = 'intrusion-set--4ca1929c-7d64-4aab-b849-badbfc0c760d'
@@ -48,11 +46,10 @@ class Stix2TestCases(TestCase):
 
     def test_get_objects_by_external_id(self):
         data_source = hodgepodge.stix.get_taxii_data_source(url=MITRE_ATTACK_ICS_URL)
-        rows = hodgepodge.stix.get_objects(
+        rows = list(hodgepodge.stix.iter_objects(
             data_source=data_source,
             object_external_ids=['G0074'],
-        )
-        self.assertIsInstance(rows, list)
+        ))
         self.assertEqual(1, len(rows))
 
         expected = 'intrusion-set--76d59913-1d24-4992-a8ac-05a3eb093f71'
@@ -61,11 +58,10 @@ class Stix2TestCases(TestCase):
 
     def test_get_objects_by_type(self):
         data_source = hodgepodge.stix.get_taxii_data_source(url=MITRE_ATTACK_ICS_URL)
-        rows = hodgepodge.stix.get_objects(
+        rows = list(hodgepodge.stix.iter_objects(
             data_source=data_source,
             object_types=['intrusion-set'],
-        )
-        self.assertIsInstance(rows, list)
+        ))
         self.assertGreater(len(rows), 0)
 
         expected = {'intrusion-set'}
