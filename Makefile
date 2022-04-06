@@ -1,4 +1,4 @@
-all: clean test build
+all: clean build test
 
 clean:
 	rm -rf dist
@@ -9,14 +9,14 @@ update:
 	poetry export -f requirements.txt -o requirements.txt --without-hashes
 	poetry show --tree
 
- test:
-	poetry run coverage run -m pytest
+test:
+	poetry run coverage run -m pytest --durations=0
 
 install:
 	poetry install
 
-build: test
+build:
 	poetry build
 
-release: build
+release: build test
 	poetry publish
