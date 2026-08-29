@@ -20,7 +20,7 @@ DEFAULT_DEPRECATION_KEYS = [
     'x-mitre-deprecated'
 ]
 
-def expand_stix_bundle_file(input_file: str, output_dir: str) -> List[dict]:
+def expand_bundle_file(input_file: str, output_dir: str) -> List[dict]:
     """
     Expanding a STIX 2 bundle file into a directory consists of:
     
@@ -29,7 +29,7 @@ def expand_stix_bundle_file(input_file: str, output_dir: str) -> List[dict]:
         - Generate a STIX 2 bundle file containing all objects of that type (e.g. attack-pattern/stix2-bundle.json)
         - Generate a STIX 2 bundle file for each individual object (e.g. attack-pattern/attack-pattern--1234.json)
     """
-    objects = list(read_stix_objects(input_file))
+    objects = list(read_objects(input_file))
 
     objects_by_type = collections.defaultdict(list)
     for o in objects:
@@ -43,7 +43,7 @@ def expand_stix_bundle_file(input_file: str, output_dir: str) -> List[dict]:
         # Generate one STIX 2 bundle per object type
         output_path = os.path.join(object_dir, DEFAULT_STIX_BUNDLE_FILENAME)
         with open(output_path, 'w') as fp:
-            bundle = new_stix_bundle(objects)
+            bundle = new_bundle(objects)
             json.dump(bundle, fp, indent=JSON_INDENT)
 
         # Generate one STIX 2 bundle per object
@@ -51,17 +51,17 @@ def expand_stix_bundle_file(input_file: str, output_dir: str) -> List[dict]:
             object_id = o['id']
             output_path = os.path.join(object_dir, f'{object_id}.json')
             with open(output_path, 'w') as fp:
-                bundle = new_stix_bundle([o])
+                bundle = new_bundle([o])
                 json.dump(bundle, fp, indent=JSON_INDENT)
 
 
-def new_stix2_bundle_file(path: str, objects: List[dict]):
-    bundle = new_stix_bundle(objects)
+def new_bundle_file(path: str, objects: List[dict]):
+    bundle = new_bundle(objects)
     with open(path, 'w') as fp:
         json.dump(bundle, fp, indent=JSON_INDENT)
 
 
-def new_stix_bundle(objects: List[dict]) -> dict:
+def new_bundle(objects: List[dict]) -> dict:
     return {
         'id': f'bundle--{uuid.uuid4()}',
         'type': 'bundle',
@@ -69,7 +69,7 @@ def new_stix_bundle(objects: List[dict]) -> dict:
     }
 
 
-def read_stix_objects(
+def read_objects(
         path: str, 
         include_revoked: bool = DEFAULT_INCLUDE_REVOKED, 
         include_deprecated: bool = DEFAULT_INCLUDE_DEPRECATED,
