@@ -1,3 +1,4 @@
+import dataclasses
 import datetime
 import json
 
@@ -13,5 +14,7 @@ class JSONEncoder(json.JSONEncoder):
             return obj.isoformat()
         elif isinstance(obj, datetime.date):
             return obj.isoformat()
+        elif dataclasses.is_dataclass(obj):
+            return dataclasses.asdict(obj)
         else:
             return super().default(obj)
