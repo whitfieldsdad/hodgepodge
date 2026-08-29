@@ -1,0 +1,33 @@
+[project]
+name = "hodgepodge"
+version = "0.1.0"
+description = "A hodgepodge of hopefully helpful functions and tools"
+authors = [
+    {name = "Tyler Fisher",email = "tylerfisher@tylerfisher.ca"}
+]
+license = {text = "MIT"}
+readme = "README.md"
+requires-python = "!=3.14.1,>=3.11"
+
+[build-system]
+requires = ["poetry-core>=2.0.0,<3.0.0"]
+build-backend = "poetry.core.masonry.api"
+
+[tool.poetry.dependencies]
+networkx = "^3.6.1"
+genson = "^1.3.0"
+polars = "^1.41.2"
+pyyaml = "^6.0.3"
+click = "^8.4.2"
+blake3 = "^1.0.9"
+coverage = "^7.15.3"
+
+[tool.poetry.scripts]
+files = "hodgepodge.cli.files:main"
+
+[tool.coverage.run]
+command_line = "-m pytest"
+
+[tool.coverage.report]
+include = ["hodgepodge/*.py"]
+show_missing = true
