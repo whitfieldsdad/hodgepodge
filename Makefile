@@ -10,7 +10,7 @@ requirements.txt:
 
 test:
 	poetry run python3 -m unittest discover -s tests -p "*.py"
-	poetry run coverage report
-	poetry run coverage html
+	poetry run python3 -m coverage report
+	poetry run python3 -m coverage html
 
 .PHONY: default clean requirements.txt
