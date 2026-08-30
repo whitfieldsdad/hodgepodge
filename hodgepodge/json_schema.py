@@ -19,9 +19,6 @@ logger = logging.getLogger(__name__)
 def get_keys_from_files(paths: Union[str, Iterable[str]]) -> Set[str]:
     """
     Extract all keys from the JSON schemas generated from the documents in the specified files.
-
-    Supported input file types:
-
     """
     if isinstance(paths, str):
         paths = [paths]
@@ -130,7 +127,6 @@ def merge_json_schemas(schemas: Iterable[dict]) -> dict:
     return builder.to_schema()
 
 
-# TODO
 def json_schema_to_nx_digraph(schema: dict) -> nx.DiGraph:
     """
     Convert a JSON schema into a NetworkX directed graph (DiGraph).
