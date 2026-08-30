@@ -196,24 +196,6 @@ class JSONSchemaGraphConfig:
     """
     Configuration options for visualizing JSON schemas as graphs
     """
-    graph_font_name: str = 'Helvetica'
-    graph_font_size: int = 12
-    graph_layout: str = 'dot'
-    graph_rankdir: str = 'LR'
-    graph_splines: str = 'spline'
-    graph_background_color: str = 'white'
-    node_shape: str = 'box'
-    node_style: str = 'rounded,filled'
-    node_fillcolor: str = 'gray96'
-    node_fontname: str = 'Helvetica'
-    node_fontsize: int = 11
-    node_margin: str = '0.18,0.10'
-    edge_color: str = 'blue'
-    edge_arrowsize: float = 0.7
-    edge_arrowhead: str = 'vee'
-    edge_tailport: str = 'e'
-    subgraph_color: str = 'gray70'
-    concentrate_edges: bool = True
     vertical_spacing: float = 1
     horizontal_spacing: float = 0.25
 
@@ -228,100 +210,35 @@ def json_schema_to_dot(
     """
     Convert a JSON schema into a Graphviz DOT string.
     """
+    config = config or JSONSchemaGraphConfig()
     g = json_schema_to_nx_digraph(schema)
 
-    config = config or JSONSchemaGraphConfig()
+    # Build the DOT file line-by-line
     sep = ' ' * indent
     lines = [
         'digraph G {',
-        f'{sep}layout={config.graph_layout}',
-        f'{sep}rankdir={config.graph_rankdir}',
-        f'{sep}splines={config.graph_splines}',
-        f'{sep}concentrate={str(config.concentrate_edges).lower()}',
-        f'{sep}ranksep={config.vertical_spacing}',
-        f'{sep}nodesep={config.horizontal_spacing}',
-        '',
-        f'{sep}bgcolor={config.graph_background_color}',
-        '',
-        f'{sep}graph [',
-        f'{sep * 2}fontname="{config.graph_font_name}"',
-        f'{sep * 2}fontsize={config.graph_font_size}',
-        f'{sep}]'
-        '',        '',
-        f'{sep}node [',
-        f'{sep * 2}shape={config.node_shape}',
-        f'{sep * 2}style="{config.node_style}"',
-        f'{sep * 2}fillcolor={config.node_fillcolor}',
-        f'{sep * 2}fontname="{config.node_fontname}"',
-        f'{sep * 2}fontsize={config.node_fontsize}',
-        f'{sep * 2}margin="{config.node_margin}"',
-        f'{sep}]',
-        '',
-        f'{sep}edge [',
-        f'{sep * 2}color={config.edge_color}',
-        f'{sep * 2}arrowsize={config.edge_arrowsize}',
-        f'{sep * 2}arrowhead={config.edge_arrowhead}',
-        f'{sep * 2}tailport={config.edge_tailport}',
-        f'{sep}]',
+        f'{sep}rankdir=LR;',
+        f'{sep}ranksep=0.5;',
+        f'{sep}nodesep=0.5;',
+        f'',
+        f'{sep}node [shape=box];',
+        f'{sep}edge [color=blue, arrowhead=vee, headport=w, tailport=e];',
         '',
     ]
 
-    # Place nodes into the subgraph corresponding to their parent node (i.e. subgraphs contain nodes and their siblings)
-    nodes_by_parent = collections.defaultdict(list)
-    for node, data in g.nodes(data=True):
-        parent = data.get('parent')
-        if parent:
-            nodes_by_parent[parent].append((node, data))
-
-    # Add nodes
-    # - Nodes without a parent are placed at the top level of the graph
-    # - Nodes with a parent are placed in the subgraph associated with their siblings
-    for node, data in sorted(g.nodes(data=True)):
-        if node == '.':
-            continue
-
-        parent = data.get('parent')
-        if not parent:
-            label = data.get('label')
-            if label:
-                lines.append(f'{sep}"{node}" [label="{label}"]')
-            else:
-                lines.append(f'{sep}"{node}"')
-
-    for parent, nodes in sorted(nodes_by_parent.items()):
-        subgraph_label = copy.copy(parent)
-        subgraph_cluster = copy.copy(parent)
-        subgraph_cluster = strings.multi_replace(subgraph_cluster, ['.', '-'], '_')
-        subgraph_cluster = strings.multi_replace(subgraph_cluster, ['[', ']'], '')
-
-        lines.append('')
-        lines.append(f'{sep}subgraph cluster_{subgraph_cluster} {{')
-        lines.append(f'{sep * 2}label="{subgraph_label}"')
-        lines.append(f'{sep * 2}color={config.subgraph_color}')
-        lines.append('')
-
-        for node, data in sorted(nodes):
-            label = data.get('label')
-            if label:
-                lines.append(f'{sep * 2}"{node}" [label="{label}"]')
-            else:
-                lines.append(f'{sep * 2}"{node}"')
-        
-        lines.append(f'{sep}}}')
+    # Perform a topological sort to ensure parent nodes are added before child nodes
+    for node in nx.topological_sort(g):
+        label = node.split('.')[-1]
+        lines.append(f'{sep}"{node}" [label="{label}"];')
+            
+    # Add edges
+    lines.append('')
+    for source, target in g.edges():
+        lines.append(f'{sep}"{source}" -> "{target}";')
     lines.append('')
 
-    # Add edges
-    if g.number_of_edges() > 0:
-        lines.append('')
-        for a, b in g.edges:
-            if a == '.' or b == '.':
-                continue
-
-            lines.append(f'{sep}"{a}" -> "{b}"')
-
     lines.append('}')
-
-    return '\n'.join(lines)
+    return "\n".join(lines)
 
 
 def to_json_file(o: dict, output_file: str):
