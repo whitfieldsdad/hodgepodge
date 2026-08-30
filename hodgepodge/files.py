@@ -92,20 +92,6 @@ def iter_file_paths(
     """
     Recursively search for files and directories matching the provided criteria starting from one or more root paths.
     """
-    def g(d: str) -> Iterator[str]:
-        d = get_real_path(d)
-        if "*" in d:
-            paths = glob(d)
-        else:
-            paths = [d]
-
-        for path in paths:
-            yield path
-            if os.path.isdir(path):
-                for directory, _, filenames in os.walk(path, followlinks=follow_symlinks):
-                    for filename in filenames:
-                        yield os.path.join(directory, filename)
-
     if not (include_files or include_directories):
         raise ValueError('At least one of include_files or include_directories must be True')
 
@@ -114,21 +100,22 @@ def iter_file_paths(
         roots = get_non_overlapping_paths(roots)
     
     for root in roots:
-        for path in g(root):
-            if include_files or include_directories:
-                is_dir = os.path.isdir(path)
-                if (include_files and is_dir) or (include_directories and not is_dir):
-                    continue
+        for directory, subdirectories, filenames in os.walk(root, followlinks=follow_symlinks):
+            if include_files:
+                for filename in filenames:
+                    if filename_patterns and not any(fnmatch.fnmatch(filename, pattern) for pattern in filename_patterns):
+                        continue
 
-            if filename_patterns:
-                found = {
-                    path,
-                    os.path.basename(path),
-                }
-                if not any(fnmatch.fnmatch(f, pattern) for f in found for pattern in filename_patterns):
-                    continue
-            
-            yield path
+                    path = os.path.join(directory, filename)
+                    yield path
+
+            if include_directories:
+                for subdirectory in subdirectories:
+                    if filename_patterns and not any(fnmatch.fnmatch(subdirectory, pattern) for pattern in filename_patterns):
+                        continue
+
+                    path = os.path.join(directory, subdirectory)
+                    yield path
 
 
 def read_documents_from_files(paths: Iterable[str]) -> Iterator[dict]:
