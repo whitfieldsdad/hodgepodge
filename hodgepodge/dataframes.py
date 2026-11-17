@@ -1,13 +1,13 @@
 import gzip
 import json
-import os
-from typing import Optional, Tuple
+from typing import Optional
 
 import polars as pl
 import yaml
 
 from hodgepodge.json_encoder import JSONEncoder
-from hodgepodge.constants import CSV, JSON, JSONL, PARQUET, GZIP, YAML
+from hodgepodge.constants import CSV, JSON, JSONL, PARQUET, GZIP, YAML, FILE_EXTENSIONS_TO_FILE_TYPES
+import hodgepodge.files
 
 
 def read_dataframe(path: str, file_type: Optional[str] = None) -> pl.DataFrame:
@@ -17,7 +17,7 @@ def read_dataframe(path: str, file_type: Optional[str] = None) -> pl.DataFrame:
     If no file type or compression type is specified it will be inferred from the file extension.
     """
     if not file_type:
-        file_type, _ = _get_file_and_compression_type_from_path(path)
+        file_type, _ = hodgepodge.files.get_file_and_compression_type_from_path(path)
         if not file_type:
             raise ValueError(f'Could not infer file type from path: {path}')
 
@@ -48,7 +48,7 @@ def write_dataframe(
     If no file type or compression type is specified it will be inferred from the file extension.
     """
     if not file_type:
-        file_type, compression_type = _get_file_and_compression_type_from_path(path)
+        file_type, compression_type = hodgepodge.files.get_file_and_compression_type_from_path(path)
         if not file_type:
             raise ValueError(f'Could not infer file type from path: {path}')
     
@@ -77,23 +77,20 @@ def write_dataframe(
         raise ValueError(f'Unsupported file and compression type combo (file type: {file_type}, compression type: {compression_type}, path: {path})')
 
 
-def _get_file_and_compression_type_from_path(path: str) -> Tuple[Optional[str], Optional[str]]:
-    filename = os.path.basename(path)
-    if filename.endswith('.csv.gz'):
-        return CSV, GZIP
-    elif filename.endswith('.csv'):
-        return CSV, None
-    elif filename.endswith('.jsonl.gz'):
-        return JSONL, GZIP
-    elif filename.endswith('.jsonl'):
-        return JSONL, None
-    elif filename.endswith('.json.gz'):
-        return JSON, GZIP
-    elif filename.endswith('.json'):
-        return JSON, None
-    elif filename.endswith('.parquet'):
-        return PARQUET, None
-    elif filename.endswith('.yaml'):
-        return YAML, None
-    else:
-        raise ValueError(f"Could not infer file type and compression type from path: {path}")
+def replace_binary_dtype(dtype: pl.DataType, target: pl.DataType = pl.String) -> pl.DataType:
+    if dtype == pl.Binary:
+        return target
+    if isinstance(dtype, pl.List):
+        return pl.List(replace_binary_dtype(dtype.inner, target))
+    if isinstance(dtype, pl.Array):
+        return pl.Array(replace_binary_dtype(dtype.inner, target), dtype.shape)
+    if isinstance(dtype, pl.Struct):
+        return pl.Struct([
+            pl.Field(field.name, replace_binary_dtype(field.dtype, target))
+            for field in dtype.fields
+        ])
+    return dtype
+
+
+if __name__ == "__main__":
+    pass

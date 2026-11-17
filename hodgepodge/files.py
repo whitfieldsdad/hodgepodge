@@ -1,10 +1,12 @@
 import dataclasses
 import fnmatch
-import glob
+from sys import path
+import hodgepodge.strings
 import os
 import threading
-from typing import Iterable, Iterator, List, Optional, Set, Union
+from typing import Iterable, Iterator, List, Optional, Set, Tuple, Union
 from dataclasses import dataclass
+from hodgepodge.constants import FILE_EXTENSIONS_TO_FILE_TYPES, FILE_TYPES_TO_FILE_EXTENSIONS
 from hodgepodge.hashing import DEFAULT_FILE_HASHING_BLOCK_SIZE, Hash
 from hodgepodge import hashing, dataframes
 import concurrent.futures
@@ -190,3 +192,20 @@ def get_real_path(path: str) -> str:
     for f in fs:
         path = f(path)
     return path
+
+
+def replace_file_extension(input_path: str, output_file_type: str, output_compression_type: Optional[str] = None) -> str:
+    input_file_type, input_compression_type = get_file_and_compression_type_from_path(input_path)
+    input_file_extension = FILE_TYPES_TO_FILE_EXTENSIONS[(input_file_type, input_compression_type)]
+    output_file_extension = FILE_TYPES_TO_FILE_EXTENSIONS[(output_file_type, output_compression_type)]
+    output_path = hodgepodge.strings.replace_suffix(input_path, input_file_extension, output_file_extension)
+    return output_path
+
+
+def get_file_and_compression_type_from_path(path: str) -> Tuple[Optional[str], Optional[str]]:
+    filename = os.path.basename(path)
+    for ext, (ftype, ctype) in FILE_EXTENSIONS_TO_FILE_TYPES.items():
+        if filename.endswith(ext):
+            return ftype, ctype
+    else:
+        raise ValueError(f"Could not infer file type and compression type from path: {path}")

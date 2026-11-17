@@ -20,17 +20,43 @@ DEFAULT_DEPRECATION_KEYS = [
     'x-mitre-deprecated'
 ]
 
-def expand_bundle_file(input_file: str, output_dir: str) -> List[dict]:
+def expand_bundle_file(
+        input_file: str, 
+        output_dir: str,
+        include_revoked: bool = DEFAULT_INCLUDE_REVOKED,
+        include_deprecated: bool = DEFAULT_INCLUDE_DEPRECATED,
+        revocation_keys: Iterable[str] = DEFAULT_REVOCATION_KEYS,
+        deprecation_keys: Iterable[str] = DEFAULT_DEPRECATION_KEYS) -> List[dict]:
     """
     Expanding a STIX 2 bundle file into a directory consists of:
     
-    - Reading the STIX objects from the input file and grouping them by type (e.g., attack-pattern, course-of-action, etc.)
+    - Reading STIX objects from the input file
+    - Applying filters for revoked and deprecated objects
+    - Writing the filtered set of STIX 2 objects to the output directory
+    - Grouping objects by type (i.e. attack-pattern, course-of-action, etc.)
     - For each object type:
-        - Generate a STIX 2 bundle file containing all objects of that type (e.g. attack-pattern/stix2-bundle.json)
-        - Generate a STIX 2 bundle file for each individual object (e.g. attack-pattern/attack-pattern--1234.json)
+        - Generating a STIX 2 bundle file containing all objects of that type (e.g. attack-pattern/stix2-bundle.json)
+        - Generating a STIX 2 bundle file for each individual object (e.g. attack-pattern/attack-pattern--1234.json)
     """
-    objects = list(read_objects(input_file))
+    objects = list(read_objects(
+        path=input_file,
+        include_revoked=include_revoked,
+        include_deprecated=include_deprecated,
+        revocation_keys=revocation_keys,
+        deprecation_keys=deprecation_keys
+    ))
 
+    # Create the output directory if it doesn't exist
+    os.makedirs(output_dir, exist_ok=True)
+
+    # Copy the input file to the output directory
+    output_file_path = os.path.join(output_dir, DEFAULT_STIX_BUNDLE_FILENAME)
+    with open(output_file_path, 'w') as fp:
+        for o in objects:
+            json.dump(o, fp, indent=JSON_INDENT)
+            fp.write('\n')
+
+    # Group objects by type
     objects_by_type = collections.defaultdict(list)
     for o in objects:
         t = o['type']

@@ -21,6 +21,11 @@ pyyaml = "^6.0.3"
 click = "^8.4.2"
 blake3 = "^1.0.9"
 coverage = "^7.15.3"
+dacite = "^1.9.2"
+pandas = "^3.0.5"
+xlsxwriter = "^3.2.9"
+pyarrow = "^25.0.1"
+tqdm = "^4.70.1"
 
 [tool.poetry.scripts]
 files = "hodgepodge.cli.files:main"

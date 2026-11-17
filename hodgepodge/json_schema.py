@@ -172,6 +172,7 @@ def get_keys_from_json_schema(schema: dict[str, Any]) -> Iterator[str]:
             if value_type == 'object':
                 path = parent_keys + [key]
                 keys.add(".".join(path))
+                walk(value, path)
 
             # Keys with array values (e.g. arrays of integers, arrays of objects)
             elif value_type == 'array':
@@ -218,9 +219,9 @@ def json_schema_to_dot(
     lines = [
         'digraph G {',
         f'{sep}rankdir=LR;',
-        f'{sep}ranksep=0.5;',
-        f'{sep}nodesep=0.5;',
-        f'',
+        f'{sep}splines=polyline;',
+        f'{sep}ranksep=0.75;',
+        f'{sep}nodesep=0.15;',        
         f'{sep}node [shape=box];',
         f'{sep}edge [color=blue, arrowhead=vee, headport=w, tailport=e];',
         '',
