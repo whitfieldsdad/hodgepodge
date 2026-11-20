@@ -22,7 +22,8 @@ class SheetConfig:
     name: str
     path: str
     enabled: bool = True
-    select: Iterable[str] | Mapping[str, str] | None = None
+    select_columns: Iterable[str] | Mapping[str, str] | None = None
+    drop_columns: Iterable[str] | None = None
     replace_nan_with_null: bool = False
 
 
@@ -118,17 +119,19 @@ def _load_sheet_dataframe(sheet: SheetConfig) -> pl.DataFrame:
 
 
 def _transform_dataframe(df: pl.DataFrame, sheet: SheetConfig) -> pl.DataFrame:
-    if sheet.select is not None:
-        if isinstance(sheet.select, Mapping):
-            missing = set(sheet.select) - set(df.columns)
+    
+    # Select and/or rename columns
+    if sheet.select_columns is not None:
+        if isinstance(sheet.select_columns, Mapping):
+            missing = set(sheet.select_columns) - set(df.columns)
             if missing:
                 raise ValueError(f"Sheet {sheet.name!r} references missing columns: {sorted(missing)}")
 
             df = df.select(
-                pl.col(source).alias(output) for source, output in sheet.select.items()
+                pl.col(source).alias(output) for source, output in sheet.select_columns.items()
             )
         else:
-            selected_columns = list(sheet.select)
+            selected_columns = list(sheet.select_columns)
             missing = set(selected_columns) - set(df.columns)
             if missing:
                 raise ValueError(
@@ -138,6 +141,7 @@ def _transform_dataframe(df: pl.DataFrame, sheet: SheetConfig) -> pl.DataFrame:
 
             df = df.select(selected_columns)
 
+    # Replace NaN values with nulls in float columns
     if sheet.replace_nan_with_null:
         float_columns = [
             name
@@ -149,5 +153,9 @@ def _transform_dataframe(df: pl.DataFrame, sheet: SheetConfig) -> pl.DataFrame:
             df = df.with_columns(
                 pl.col(name).fill_nan(None).alias(name) for name in float_columns
             )
+
+    # Drop specified columns
+    if sheet.drop_columns is not None:
+        df = df.drop(sheet.drop_columns)
 
     return df
