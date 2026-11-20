@@ -1,9 +1,8 @@
 from __future__ import annotations
 
-from collections.abc import Iterable, Mapping
 from dataclasses import dataclass
 from pathlib import Path
-from typing import Any
+from typing import Any, List, Optional, Union, Dict
 
 import json
 
@@ -22,8 +21,8 @@ class SheetConfig:
     name: str
     path: str
     enabled: bool = True
-    select_columns: Iterable[str] | Mapping[str, str] | None = None
-    drop_columns: Iterable[str] | None = None
+    select_columns: Optional[Union[List[str], Dict[str, str]]] = None
+    drop_columns: Optional[List[str]] = None
     replace_nan_with_null: bool = False
 
 
@@ -122,7 +121,7 @@ def _transform_dataframe(df: pl.DataFrame, sheet: SheetConfig) -> pl.DataFrame:
     
     # Select and/or rename columns
     if sheet.select_columns is not None:
-        if isinstance(sheet.select_columns, Mapping):
+        if isinstance(sheet.select_columns, dict):
             missing = set(sheet.select_columns) - set(df.columns)
             if missing:
                 raise ValueError(f"Sheet {sheet.name!r} references missing columns: {sorted(missing)}")
